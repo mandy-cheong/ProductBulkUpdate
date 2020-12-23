@@ -1,0 +1,380 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="adm.master.cs" Inherits="adm_adm" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>HaWooo 管理後台</title>
+    <meta name="keywords" content="index" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <link rel="stylesheet" href="assets/css/amazeui.min.css" />
+
+
+    <link rel="stylesheet" href="assets/css/admin.css" />
+    <%--   <link href="css/admapp.css" rel="stylesheet" />--%>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.extend.js"></script>
+    <script src="assets/js/amazeui.min.js"></script>
+    <script src="assets/js/amazeui.datatables.min.js"></script>
+    <script src="assets/js/app.js"></script>
+    <%--    <script src="js/adm.js"></script>--%>
+
+
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+
+    <style>
+        a, img, i {
+            cursor: pointer;
+        }
+
+        hr {
+            margin: 5px;
+        }
+
+
+        .am-tabs-bd {
+            -moz-user-select: text !important;
+            -webkit-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+    </style>
+    <script src="assets/js/jquery.blockUI.js"></script>
+    <script>
+        function lockPage() {
+            $.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .5,
+                    color: '#fff'
+                }
+            });
+        }
+        function unLockPage() {
+            $.unblockUI();
+        }
+    </script>
+</head>
+<body style="font-size: 14px">
+    <div class="wrap">
+        <form id="form1" runat="server">
+            <asp:ScriptManager ID="ScriptManager1" runat="server" ScriptMode="Release"></asp:ScriptManager>
+            <script type="text/javascript">
+                Sys.WebForms.PageRequestManager.getInstance().add_endRequest(EndRequestHandler);
+                function EndRequestHandler(sender, args) {
+                    if (args.get_error() != undefined) {
+                        args.set_errorHandled(true);
+                    }
+                }
+            </script>
+            <script>
+                function openMMODAL(url) {
+                    $("#MMODAL").modal('open');
+                }
+                function closeFMODAL() {
+                    $("#MMODAL").modal('close');
+                }
+            </script>
+
+
+            <header class="am-topbar admin-header">
+                <div class="am-topbar-brand">
+                    <strong>Hawooo </strong><small>- 管理系統</small>
+                </div>
+                <div class="am-topbar-btn am-topbar-toggle am-btn am-btn-sm am-btn-success am-show-sm-only" data-am-collapse="{target: '#topbar-collapse'}"><span class="am-sr-only">導航切換</span> <span class="am-icon-bars"></span></div>
+
+                <div class="am-collapse am-topbar-collapse" id="topbar-collapse">
+
+                    <ul class="am-nav am-nav-pills am-topbar-nav am-topbar-right admin-header-list" style="padding-top: 10px">
+                        <li><a href="admOrder.aspx"><span class="am-icon-envelope-o"></span>尚未處理訂單 <span class="am-badge am-badge-warning">
+                            <asp:Literal ID="lit_order_num" runat="server"></asp:Literal>
+                        </span></a></li>
+                        <li class="am-dropdown" data-am-dropdown>
+                            <a class="am-dropdown-toggle" data-am-dropdown-toggle href="javascript:;">
+                                <span class="am-icon-users"></span>
+                                <asp:Literal ID="lit_ADM02" runat="server"></asp:Literal>
+                                <span class="am-icon-caret-down"></span>
+                            </a>
+                            <%--  <ul class="am-dropdown-content">
+                                <li><a href="#"><span class="am-icon-user"></span>資料</a></li>
+                                <li><a href="#"><span class="am-icon-cog"></span>設置</a></li>
+                                <li><a href="#"><span class="am-icon-power-off"></span>退出</a></li>
+                            </ul>--%>
+                        </li>
+                        <li class="am-hide-sm-only"><a href="javascript:;" id="admin-fullscreen"><span class="am-icon-arrows-alt"></span><span class="admin-fullText">全螢幕</span></a></li>
+                    </ul>
+                </div>
+            </header>
+
+            <script>
+                $(function () {
+                    $("#adm-menu li a").click(function () {
+                        var _this = $(this);
+                        if (_this.next("ul").length > 0) {
+                            if (_this.next().is(":visible")) {
+                                _this.find('span').removeClass("am-icon-arrow-down").addClass("am-icon-arrow-right");
+                                ////隱藏子選單並替換符號
+                                _this.next().hide("fast");
+                            } else {
+                                _this.find("span").removeClass("am-icon-arrow-right").addClass("am-icon-arrow-down");
+                                //開啟子選單並替換符號
+                                _this.next().show("fast");
+                            }
+                            //關閉連結
+                            return false;
+                        }
+                    });
+
+                    $("a").focus(function () {
+                        $(this).blur();
+                    });
+                });
+            </script>
+            <div class="am-cf admin-main" style="min-width: 1200px">
+                <!-- sidebar start -->
+                <div class="admin-sidebar am-offcanvas" id="admin-offcanvas">
+                    <div class="am-offcanvas-bar admin-offcanvas-bar">
+                        <ul class="am-list admin-sidebar-list" id="adm-menu">
+                            <%--   <li id="m01"><a href="index.aspx"><span class="am-icon-arrow-right"></span>&nbsp;首頁</a></li>--%>
+
+                            <li id="m02"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;電商管理(4)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admSuppliers.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商資料管理</a></li>
+                                    <li><a href="admSuppliersAD.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商廣告管理</a></li>
+                                    <li><a href="admSupplierClass.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商類別管理</a></li>
+                                       <li><a href="admSupplierShipping.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商免運管理</a></li>
+                                    <%--<li><a href="#" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商新聞管理</a></li>--%>
+                                </ul>
+                            </li>
+                            <li id="m04"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;商品管理(8)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admProductItems.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;品項管理</a></li>
+                                    <li><a href="admBathItemUpdate.aspx"><i class="am-icon-angle-right"></i>&nbsp;批次品項更新</a></li>
+                                    <%--<li><a href="admItemsUpdate.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;批次庫存更新</a></li>--%>
+                                    <li><a href="admWebProducts.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品上下架</a></li>
+                                    <li><a href="admWebGroup.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品群組管理</a></li>
+                                    <li><a href="admTag.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品標籤管理</a></li>
+                                    <li><a href="admSelectProducts.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;活動選品管理</a></li>
+                                    <li><a href="admLowStock.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;無庫存商品</a></li>
+                                    <li><a href="admCheckGrossMargin.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品毛利率管理</a></li>
+                                </ul>
+                            </li>
+                            <%--  <li id="m21"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;VGP管理</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admVGPTradeSpent.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;VGP TradeSpent設定</a></li>
+                                    <li><a href="admVGPM.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;VGP 活動管理</a></li>
+                                </ul>
+                            </li>--%>
+                            <li id="m20">
+                                <a href="#"><span class="am-icon-arrow-right"></span>&nbsp;採購物流管理(5)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admPurchase.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;採購單管理</a></li>
+                                    <li><a href="admOrderInput.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;訂單匯入作業</a></li>
+                                    <li><a href="admOrderStock.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;訂單出貨作業</a></li>
+                                    <li><a href="admOrderLog.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;訂單出貨紀錄</a></li>
+                                    <li><a href="admStockInfo.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;目前庫存記錄</a></li>
+                                </ul>
+                            </li>
+                            <li id="m12"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;代購管理(5)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admBFYWP.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;代購商品上架</a></li>
+                                    <li><a href="admYahooAPI.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;Yahoo代購商品選擇</a></li>
+                                    <li><a href="admBFYINFO.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;代購金額設定</a></li>
+                                    <li><a href="admBFYQA.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;代購QA設定</a></li>
+                                    <li><a href="admBFYBRAND.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;代購品牌管理</a></li>
+                                </ul>
+                            </li>
+                            <li id="m07">
+                                <a href="#"><span class="am-icon-arrow-right"></span>&nbsp;訂單管理(6)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admOrder.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商城訂單管理</a></li>
+                                    <li><a href="admBFYORDER.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;代購訂單管理</a></li>
+                                    <li><a href="admBsOrder.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;經銷訂單管理</a></li>
+                                    <li><a href="admInvoiceReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;INVOICE批次作業</a></li>
+                                    <li><a href="admInvoices.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;INVOICE匯出作業</a></li>
+                                    <li><a href="admBookingProduct.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;預購商品管理</a></li>
+                                    <li><a href="admPostISIS.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;ISIS作業</a></li>
+                                    <li><a href="admOrderCheckHaCoin.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;Ha幣開通作業</a></li>
+                                    <%--   <li><a href="#" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;退貨申請作業</a></li>--%>
+                                </ul>
+                            </li>
+                            <%--  <li id="m15"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;庫存管理(2)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admHBS.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;庫存資料管理</a></li>
+                                    <li><a href="#" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;尚欠商品管理</a></li>
+                                </ul>
+                            </li>--%>
+                            <li id="m13">
+                                <a href="#"><span class="am-icon-arrow-right"></span>&nbsp;報表管理(21)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admProductReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;銷售商品報表</a></li>
+                                    <li><a href="admReport1.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;選品報表</a></li>
+                                    <li><a href="admReport2.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;毛利報表</a></li>
+                                    <li><a href="admReport3.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品比較報表</a></li>
+                                    <%--<li><a href="admSalesAllReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;營運報表</a></li>--%>
+                                    <li><a href="admFiliterCustmer.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;會員篩選</a></li>
+                                    <li><a href="admSelProductExport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品篩選</a></li>
+                                    <li><a href="admTrackInfo.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;活動追蹤</a></li>
+                                    <li><a href="admUserViewReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品ROAS</a></li>
+                                    <li><a href="admSupOrderReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;品牌販售報表</a></li>
+                                    <li><a href="admCartReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;購物車報表</a></li>
+                                    <li><a href="admShipCostReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;物流費用報表[訂單]</a></li>
+                                    <li><a href="admStockReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;庫存報表</a></li>
+                                    <li><a href="admPsCostReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;物流費用報表[採購]</a></li>
+                                    <li><a href="admMCReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;MailChimp報表</a></li>
+                                    <li><a href="admDayReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;營運報表</a></li>
+                                    <li><a href="admFbReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;Fb廣告報表</a></li>
+                                    <li><a href="admCouponReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;折扣券報表</a></li>
+                                    <li><a href="admProductEventReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;累積活動報表</a></li>
+                                    <li><a href="admBrandRankReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;供應商評分報表</a></li>
+                                    <li><a href="admStockInfoReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;庫存進出報表</a></li>
+                                    <li>
+                                        <a href="admProductCouponReportForSuppier.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品折扣券使用報表</a>
+                                    </li>
+                                </ul>
+                            </li>
+
+
+                            <li id="m06"><a href="admUser.aspx"><span class="am-icon-arrow-right"></span>&nbsp;會員管理</a>
+                            </li>
+                            <li id="m14">
+                                <a href="admATCB.aspx"><span class="am-icon-arrow-right"></span>&nbsp;文章管理(2)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admATCB.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;文章上下架</a></li>
+                                    <li><a href="admATCC.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;文章廣告管理</a></li>
+                                </ul>
+                            </li>
+                            <%--    <li id="m11">
+                                <a href="admService.aspx"><span class="am-icon-arrow-right"></span>&nbsp;客服管理</a>
+                            </li>--%>
+
+                            <%--  <li><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;購物金管理</a></li>--%>
+                            <%--  <li id="m08"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;討論區管理</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="#" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;討論區管理</a></li>
+                                </ul>
+                            </li>--%>
+                            <li id="m09"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;推薦專區管理</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admRecommedMsg.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;推薦留言</a></li>
+                                </ul>
+                            </li>
+                            <li id="m16"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;廣告管理(3)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admTCODE.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;廣告追蹤碼管理</a></li>
+                                    <li><a href="admAD.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;廣告區塊管理</a></li>
+                                    <li><a href="admHotKey.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;區塊關鍵字管理</a></li>
+                                    <li><a href="admYouTube.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;影片連結</a></li>
+                                    <li><a href="admHotSearchKey.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;熱門關鍵字管理</a></li>
+                                </ul>
+                            </li>
+                            <li id="m17"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;活動管理(7)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+
+                                    <li><a href="#" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;贈品活動</a>
+                                        <ul class="am-list am-collapse admin-sidebar-sub am-in">
+                                            <li>
+                                                <a href="admGiftProductList.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;贈品上下架</a>
+                                            </li>
+                                            <li>
+                                                <a href="admGiftFreeEvent.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;贈品滿額活動</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li><a href="#" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;折扣券管理</a>
+                                        <ul class="am-list am-collapse admin-sidebar-sub am-in">
+                                            <li><a href="admCoupon.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;折扣卷管理</a></li>
+                                            <li><a href="admProductCoupon.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;商品折扣券管理</a></li>
+                                        </ul>
+                                    </li>
+                                    <li><a href="admWebEvent.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;全館活動管理</a></li>
+                                    <li><a href="admAdEvent.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;購物金活動管理</a></li>
+                                    <li><a href="admFullEvent.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;滿額折抵活動管理</a></li>
+                                    <li><a href="admLogisticsEvent.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;運費活動設定</a></li>
+                                    <li><a href="admHaEvent.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;Ha幣活動設定</a></li>
+                                    <li><a href="admPreOrderInfo.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;預購活動設定</a></li>
+                                    <li><a href="admExcludeInfo.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;排除資訊設定</a></li>
+                                </ul>
+                            </li>
+                            <%--<li><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;經銷商管理</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in">
+                                    <li><a href="#" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;賣家資料管理</a></li>
+                                    <li><a href="#" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;賣家商品管理</a></li>
+                                    <li><a href="#" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;賣家訂單管理</a></li>
+                                    <li><a href="#" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;賣家等級設定</a></li>
+                                </ul>
+                            </li>--%>
+                            <li id="m03"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;物流管理(4)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admAirPackShip.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;ISIS單號作業</a></li>
+                                    <li><a href="admPacking.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;Packing產出作業</a></li>
+                                    <li><a href="admLogistics.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;運費設定</a></li>
+                                    <li><a href="admImportShip.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;出貨匯入作業</a></li>
+                                    <%-- <li><a href="admLogistics.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;物流商設定</a></li>
+                                    <li><a href="admShippingRate.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;運費設定</a></li>--%>
+                                </ul>
+                            </li>
+                            <li id="m05"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;網站資料管理(3)</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="admcashrate.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;匯率設定</a></li>
+                                    <li><a href="admJoinUs.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;加入我們</a></li>
+                                    <li><a href="admNewInfo.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;新聞管理</a> </li>
+                                    <%-- <li><a href="admBack.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;退貨資訊設定</a></li>--%>
+                                </ul>
+                            </li>
+                            <li id="m18"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;經銷管理</a>
+                                <ul class="am-list am-collapse admin-sidebar-sub am-in" style="display: none">
+                                    <li><a href="#" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;經銷會員管理</a>
+                                        <ul class="am-list am-collapse admin-sidebar-sub am-in">
+                                            <li>
+                                                <a href="admBsApply.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;申請管理</a>
+                                            </li>
+                                            <li>
+                                                <a href="admBsUser.aspx" class="am-cf"><span class="am-icon-angle-right"></span>&nbsp;經銷客管理</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li><a href="admGoldProduct.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;購物金產品管理</a></li>
+                                    <li><a href="admGoldOrder.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;購物金訂單管理</a></li>
+                                    <li><a href="admBsReport.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;經銷報表</a></li>
+                                </ul>
+                            </li>
+
+                            <%--<li id="m10"><a href="admhawoogirl.aspx"><span class="am-icon-arrow-right"></span>&nbsp;好物女孩留言資料</a>
+                            </li>--%>
+                        </ul>
+                        <div class="am-panel am-panel-default admin-sidebar-panel">
+                            <div class="am-panel-bd">
+                                <p><span class="am-icon-bookmark"></span>Note:</p>
+                                <p>請避免使用"上一頁"等瀏覽器功能，直接操作系統提供之相關按鈕操作。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- sidebar end -->
+                <!-- content start -->
+                <div class="admin-content">
+                    <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                    </asp:ContentPlaceHolder>
+                </div>
+                <!-- content end -->
+            </div>
+        </form>
+    </div>
+    <a class="am-icon-btn am-icon-th-list am-show-sm-only admin-menu" data-am-offcanvas="{target: '#admin-offcanvas'}"></a>
+    <footer style="height: 80px">
+        <hr />
+        <p class="am-padding-left">CopyRight © 2015 hawooo </p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "adm", "adm\", "{EA2CB025-60C0-4020-879C-743B6668EF3C}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.6"
+		ProjectReferences = ""
+		Debug.AspNetCompiler.VirtualPath = "/localhost_50494"
+		Debug.AspNetCompiler.PhysicalPath = "adm\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_50494\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_50494"
+		Release.AspNetCompiler.PhysicalPath = "adm\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_50494\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "50494"
+		SlnRelativePath = "adm\"
+		DefaultWebSiteLanguage = "Visual C#"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA2CB025-60C0-4020-879C-743B6668EF3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA2CB025-60C0-4020-879C-743B6668EF3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA2CB025-60C0-4020-879C-743B6668EF3C}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA2CB025-60C0-4020-879C-743B6668EF3C}.Release|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2F3DA7D2-5C42-42BD-AA33-9F20FBC6E245}
+	EndGlobalSection
+EndGlobal
