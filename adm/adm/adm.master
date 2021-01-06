@@ -153,6 +153,7 @@
                                     <li><a href="admSuppliersAD.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商廣告管理</a></li>
                                     <li><a href="admSupplierClass.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商類別管理</a></li>
                                        <li><a href="admSupplierShipping.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商免運管理</a></li>
+                                       
                                     <%--<li><a href="#" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;電商新聞管理</a></li>--%>
                                 </ul>
                             </li>
@@ -167,6 +168,7 @@
                                     <li><a href="admSelectProducts.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;活動選品管理</a></li>
                                     <li><a href="admLowStock.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;無庫存商品</a></li>
                                     <li><a href="admCheckGrossMargin.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;商品毛利率管理</a></li>
+                                    <li><a href="admProductBulkUpdate.aspx" class="am-cf"><i class="am-icon-angle-right"></i>&nbsp;批次更新管理</a></li>
                                 </ul>
                             </li>
                             <%--  <li id="m21"><a href="#"><span class="am-icon-arrow-right"></span>&nbsp;VGP管理</a>

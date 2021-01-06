@@ -73,11 +73,11 @@ public class BulkUpdateService : IBulkUpdateService
         var skipRows = (updateSearch.CurrentPage-1) * updateSearch.PageSize;
         var sql = @"WITH CTE AS (SELECT COUNT(1) AS totalcount FROM BulkUpdateEvent) ,
                      DETAILS AS(SELECT    *, 
-                    CASE WHEN Status=1 THEN N'已執行' ELSE N'未執行' END AS 'StatusText' FROM BulkUpdateEvent PBU  )
+                    CASE WHEN Status=1 THEN N'未執行' WHEN Status=2 THEN  N'已執行'  WHEN Status=3 THEN  N'已排除' END AS 'StatusText' FROM BulkUpdateEvent PBU  )
 
                     SELECT * FROM CTE, DETAILS
                     ORDER BY CDate DESC 
-                    OFFSET "+ skipRows + " ROWS FETCH NEXT "+updateSearch.PageSize+" ROWS ONLY  ";
+                    OFFSET " + skipRows + " ROWS FETCH NEXT "+updateSearch.PageSize+" ROWS ONLY  ";
         var cmd = SqlExtension.getSqlCmd(sql);
         cmd = AppendWhereStatement(updateSearch, cmd);
         var dt = SqlDbmanager.queryBySql(cmd);
