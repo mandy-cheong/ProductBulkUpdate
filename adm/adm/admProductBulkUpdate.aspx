@@ -21,128 +21,7 @@
     </div>
     <hr />
     <div class="am-g">
-        <div class="am-u-sm-12">
-            <div class="am-form-inline">
-                <div class="am-form-group">
-                    商品ID
-                </div>
-                <div class="am-form-group">
-                    <asp:TextBox runat="server" ID="txtSearchID" CssClass="am-form-field" TextMode="Number"></asp:TextBox>
-                </div>
-                <div class="am-form-group">
-                    名稱
-                </div>
-                <div class="am-form-group">
-                    <asp:TextBox runat="server" ID="txtSearchName" CssClass="am-form-field"></asp:TextBox>
-                </div>
-                <div class="am-form-group">
-                    執行日期
-                </div>
-                <div class="am-form-group">
-                    <div class="am-input-group">
-                        <asp:TextBox ID="txtSearchSDate" runat="server" CssClass="am-form-field" ClientIDMode="Static"></asp:TextBox>
-                    </div>
-                    至
-                     <div class="am-input-group">
-                         <asp:TextBox ID="txtSearchEDate" runat="server" CssClass="am-form-field" ClientIDMode="Static"></asp:TextBox>
-                     </div>
-                </div>
-                <div class="am-form-group">
-                    <asp:Button ID="btnSearch" runat="server" Text="搜尋" CssClass="am-btn am-btn-success" OnClick="btnSearch_OnClick" />
-                </div>
-                <div class="am-form-group">
-                    <asp:Button ID="btnExport" runat="server" Text="匯出" CssClass="am-btn am-btn-success" OnClick="btnExport_Click" />
-                </div>
-                <div class="am-form-group">
-                    <asp:UpdatePanel ID="UpdatePanel2" runat="server">
-                        <ContentTemplate>
-                            <asp:Button ID="btn_add" runat="server" Text=" 新增批次商品更新" CssClass="am-btn am-btn-primary"  OnClick="btn_add_Click" />
-                        </ContentTemplate>
-                    </asp:UpdatePanel>
-                </div>
-            </div>
-            <hr />
-        </div>
-        <script>
-            function openModal() {
-                setDateFormat();
-                $("#AddModal").modal();
-            }
-            function closeModal() {
-                alert('已儲存資料');
-                $("#AddModal").modal(close);
-            }
-            function showError(msg) {
-                setDateFormat();
-                alert(msg);
-            }
-
-            function openEditModal() {
-                setDateFormat2();
-                $("#EditModal").modal();
-            }
-            function closeEditModal() {
-                alert('已儲存資料');
-                $("#EditModal").modal(close);
-            }
-            function setSearchDateFormat() {
-
-                var opt = { dateFormat: 'yy-mm-dd' };
-                $("#txtSearchSDate").datepicker(opt);
-                $("#txtSearchEDate").datepicker(opt);
-            }
-
-        </script>
-        <div class="am-u-sm-12">
-            <div class="am-form">
-                <asp:UpdatePanel ID="list_panel" runat="server" UpdateMode="Conditional">
-                    <ContentTemplate>
-                        <table class="am-table am-table-striped am-table-hover table-main">
-                            <thead>
-                                <tr>
-                                    <th>EventID
-                                    </th>
-                                    <th>Event名稱</th>
-                                    <th>Event類型</th>
-                                    <th>執行時間</th>
-                                    <th>新增日期</th>
-                                    <th>狀態</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <asp:Repeater ID="rptList" runat="server"  OnItemDataBound="rptList_ItemDataBound">
-                                    <ItemTemplate>
-                                        <tr>
-                                            <td><%#Eval("SeqNo") %></td>
-                                            <td><%#Eval("EventName") %></td>
-                                            <td><asp:Label runat="server" ID="lblEvenType"></asp:Label></td>
-
-                                            <td><%#Eval("ExecuteStartDate",  "{0:yyyy-MM-dd hhmm}") %></td>
-                                            <td><%#Eval("CDate","{0:yyyy-MM-dd hhmm}") %></td>
-                                            <td><%#Eval("StatusText") %></td>
-                                            <td>
-                                                <asp:HiddenField runat="server" ID="hfSysId" Value='<%#Eval("SysId") %>'  />
-                                            <asp:Button ID="btn_edit" runat="server" Text="編輯資料" CssClass="am-btn am-btn-success am-btn-xs"  OnClick="btn_edit_Click"/>
-                                        </td>
-                                        </tr>
-                                    </ItemTemplate>
-                                </asp:Repeater>
-                            </tbody>
-                        </table>
-                        <div class="am-cf">
-                            <ul class="am-pagination am-pagination-centered">
-                                <asp:Literal ID="lit_page" runat="server"></asp:Literal>
-                            </ul>
-                        </div>
-                    </ContentTemplate>
-                </asp:UpdatePanel>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="am-modal am-modal-no-btn" tabindex="-1" id="AddModal" style="margin-top: 5%">
+            <div class="am-modal am-modal-no-btn" tabindex="-1" id="AddModal">
         <div class="am-modal-dialog">
             <div class="am-modal-hd">
                 新增批次商品更新
@@ -301,6 +180,128 @@
             </div>
         </div>
     </div>
+
+        <div class="am-u-sm-12">
+            <div class="am-form-inline">
+                <div class="am-form-group">
+                    商品ID
+                </div>
+                <div class="am-form-group">
+                    <asp:TextBox runat="server" ID="txtSearchID" CssClass="am-form-field" TextMode="Number"></asp:TextBox>
+                </div>
+                <div class="am-form-group">
+                    名稱
+                </div>
+                <div class="am-form-group">
+                    <asp:TextBox runat="server" ID="txtSearchName" CssClass="am-form-field"></asp:TextBox>
+                </div>
+                <div class="am-form-group">
+                    執行日期
+                </div>
+                <div class="am-form-group">
+                    <div class="am-input-group">
+                        <asp:TextBox ID="txtSearchSDate" runat="server" CssClass="am-form-field" ClientIDMode="Static"></asp:TextBox>
+                    </div>
+                    至
+                     <div class="am-input-group">
+                         <asp:TextBox ID="txtSearchEDate" runat="server" CssClass="am-form-field" ClientIDMode="Static"></asp:TextBox>
+                     </div>
+                </div>
+                <div class="am-form-group">
+                    <asp:Button ID="btnSearch" runat="server" Text="搜尋" CssClass="am-btn am-btn-success" OnClick="btnSearch_OnClick" />
+                </div>
+                <div class="am-form-group">
+                    <asp:Button ID="btnExport" runat="server" Text="匯出" CssClass="am-btn am-btn-success" OnClick="btnExport_Click" />
+                </div>
+                <div class="am-form-group">
+                    <asp:UpdatePanel ID="UpdatePanel2" runat="server">
+                        <ContentTemplate>
+                            <asp:Button ID="btn_add" runat="server" Text=" 新增批次商品更新" CssClass="am-btn am-btn-primary"  OnClick="btn_add_Click" />
+                        </ContentTemplate>
+                    </asp:UpdatePanel>
+                </div>
+            </div>
+            <hr />
+        </div>
+        <script>
+            function openModal() {
+                setDateFormat();
+                $("#AddModal").modal();
+            }
+            function closeModal() {
+                alert('已儲存資料');
+                $("#AddModal").modal(close);
+            }
+            function showError(msg) {
+                setDateFormat();
+                alert(msg);
+            }
+
+            function openEditModal() {
+                setDateFormat2();
+                $("#EditModal").modal();
+            }
+            function closeEditModal() {
+                alert('已儲存資料');
+                $("#EditModal").modal(close);
+            }
+            function setSearchDateFormat() {
+
+                var opt = { dateFormat: 'yy-mm-dd' };
+                $("#txtSearchSDate").datepicker(opt);
+                $("#txtSearchEDate").datepicker(opt);
+            }
+
+        </script>
+        <div class="am-u-sm-12">
+            <div class="am-form">
+                <asp:UpdatePanel ID="list_panel" runat="server" UpdateMode="Conditional">
+                    <ContentTemplate>
+                        <table class="am-table am-table-striped am-table-hover table-main">
+                            <thead>
+                                <tr>
+                                    <th>EventID
+                                    </th>
+                                    <th>Event名稱</th>
+                                    <th>Event類型</th>
+                                    <th>執行時間</th>
+                                    <th>新增日期</th>
+                                    <th>狀態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <asp:Repeater ID="rptList" runat="server"  OnItemDataBound="rptList_ItemDataBound">
+                                    <ItemTemplate>
+                                        <tr>
+                                            <td><%#Eval("SeqNo") %></td>
+                                            <td><%#Eval("EventName") %></td>
+                                            <td><asp:Label runat="server" ID="lblEvenType"></asp:Label></td>
+
+                                            <td><%#Eval("ExecuteStartDate",  "{0:yyyy-MM-dd hhmm}") %></td>
+                                            <td><%#Eval("CDate","{0:yyyy-MM-dd hhmm}") %></td>
+                                            <td><%#Eval("StatusText") %></td>
+                                            <td>
+                                                <asp:HiddenField runat="server" ID="hfSysId" Value='<%#Eval("SysId") %>'  />
+                                            <asp:Button ID="btn_edit" runat="server" Text="編輯資料" CssClass="am-btn am-btn-success am-btn-xs"  OnClick="btn_edit_Click"/>
+                                        </td>
+                                        </tr>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </tbody>
+                        </table>
+                        <div class="am-cf">
+                            <ul class="am-pagination am-pagination-centered">
+                                <asp:Literal ID="lit_page" runat="server"></asp:Literal>
+                            </ul>
+                        </div>
+                    </ContentTemplate>
+                </asp:UpdatePanel>
+            </div>
+        </div>
+
+    </div>
+
 
 
 </asp:Content>

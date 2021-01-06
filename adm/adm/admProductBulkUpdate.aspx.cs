@@ -41,9 +41,9 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         
         var search = new BulkUpdateSearch();
         if (!string.IsNullOrEmpty(txtSearchSDate.Text))
-            search.ExecuteStartDate = DateTimeHelper.ConvertDateTime(txtSearchSDate.Text);
+            search.ExecuteStartDate = DateTime.Parse(txtSearchSDate.Text);
         if (!string.IsNullOrEmpty(txtSearchEDate.Text))
-            search.ExecuteEndDate = DateTimeHelper.ConvertDateTime(txtSearchEDate.Text);
+            search.ExecuteEndDate = DateTime.Parse(txtSearchEDate.Text);
 
         if (!string.IsNullOrEmpty(txtSearchID.Text))
             search.ProductID = int.Parse(txtSearchID.Text);
@@ -104,13 +104,13 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         var executeStartDatestr = txtAddExecuteSDate.Text + " " + ddlAddExecuteTime.SelectedItem.Text;
 
         bulkUpdateEvent.EventName = txtAddUpdateName.Text;
-        bulkUpdateEvent.ExecuteStartDate = DateTimeHelper.ConvertDateTime(executeStartDatestr);
+        bulkUpdateEvent.ExecuteStartDate = DateTime.Parse(executeStartDatestr);
         bulkUpdateEvent.EventType = int.Parse(ddlAddBulkUpdateType.SelectedValue);
         bulkUpdateEvent.SysId = btnEdit.Visible ? Guid.Parse(hfSysId.Value) : Guid.NewGuid();
         if (divExecuteEDate.Visible)
         {
             var executeEndDatestr = txtAddExecuteEDate.Text + " " + ddlAddExecuteTime.SelectedItem.Text;
-            bulkUpdateEvent.ExecuteEndDate = DateTimeHelper.ConvertDateTime(executeEndDatestr);
+            bulkUpdateEvent.ExecuteEndDate = DateTime.Parse(executeEndDatestr);
         }
         updateData.UpdateDetails = MapProductUpdateDetails(bulkUpdateEvent);
         updateData.UpdateEvent = bulkUpdateEvent;
@@ -160,8 +160,8 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
     {
         var productDate = new ProductDateUpdate();
         productDate.ProductId = pid;
-        productDate.StartDate = DateTimeHelper.ConvertDateTime(txtAddProductSDate.Text);
-        productDate.EndDate = DateTimeHelper.ConvertDateTime(txtAddProductEDate.Text);
+        productDate.StartDate = DateTime.Parse(txtAddProductSDate.Text);
+        productDate.EndDate = DateTime.Parse(txtAddProductEDate.Text);
         productDate.SysId = Guid.NewGuid();
         productDate.EventId = eventId;
 
