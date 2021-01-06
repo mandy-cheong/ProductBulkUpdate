@@ -61,6 +61,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
     }
     private void GetPaging(int total, int pagesize, int currentPage)
     {
+        lit_page.Text = "";
         var pages = (total + pagesize - 1) / pagesize;
         int middlepage = 5;
         int startPage = 1 ;
