@@ -53,6 +53,8 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         search.CurrentPage = page;
         var dt= _productBulkUpdateService.ListBulkUpdate(search);
 
+        if (dt.Rows == null || dt.Rows.Count == 0)
+            return;
         int acount = Convert.ToInt32(dt.Rows[0]["totalcount"].ToString());
         rptList.DataSource = dt;
         rptList.DataBind();
@@ -78,7 +80,8 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         while (startPage <= endPage)
         {
             var classs = startPage == currentPage ? "style='color: #fff;background-color: #29ABB3'" : "";
-            lit_page.Text += "<li > <a href='/adm/admProductBulkUpdate.aspx?page=" + startPage + "' " + classs + " >" + startPage+ "</a></li>";
+            var currenturl = Request.Url.AbsolutePath;
+            lit_page.Text += "<li > <a href='"+currenturl+"?page=" + startPage + "' " + classs + " >" + startPage+ "</a></li>";
             startPage++;
         }
     }
@@ -97,7 +100,6 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         }
     }
 
-    private static bool _isEdit;
     private BulkUpdateData MapProductBulkUpdate()
     {
         var bulkUpdateEvent = new BulkUpdateEvent();
@@ -204,8 +206,6 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 
     protected void btn_edit_Click(object sender, EventArgs e)
     {
-        _isEdit = true;
-
         var btn = (Button)sender;
         var item = (RepeaterItem)btn.NamingContainer;
         MapEditModal(item);
@@ -292,9 +292,6 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         return int.TryParse(txt, out result);
     }
 
-   
-
-   
     public string ValidBulkUpdate()
     {
         string errorMsg = "";
@@ -332,8 +329,6 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         }
 
         return errorMsg;
-
-
     }
 
     private string ValidatePreOrder()

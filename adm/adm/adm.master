@@ -17,11 +17,14 @@
 
     <link rel="stylesheet" href="assets/css/admin.css" />
     <%--   <link href="css/admapp.css" rel="stylesheet" />--%>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/jquery.extend.js"></script>
-    <script src="assets/js/amazeui.min.js"></script>
-    <script src="assets/js/amazeui.datatables.min.js"></script>
-    <script src="assets/js/app.js"></script>
+
+     <script src='<%= ResolveUrl("assets/js/jquery.min.js")%>'></script>
+    <script src='<%= ResolveUrl("assets/js/jquery.extend.js")%>'></script>
+    <script src='<%= ResolveUrl("assets/js/amazeui.min.js")%>'></script>
+    <script src='<%= ResolveUrl("assets/js/amazeui.datatables.min.js")%>'></script>
+    <script src='<%= ResolveUrl("assets/js/app.js")%>'></script>
+    <script src='<%= ResolveUrl("assets/js/adm.js")%>'></script>
+ 
     <%--    <script src="js/adm.js"></script>--%>
 
 
@@ -372,7 +375,8 @@
                 <!-- content end -->
             </div>
         </form>
-    </div>
+    </div>>
+           
     <a class="am-icon-btn am-icon-th-list am-show-sm-only admin-menu" data-am-offcanvas="{target: '#admin-offcanvas'}"></a>
     <footer style="height: 80px">
         <hr />
