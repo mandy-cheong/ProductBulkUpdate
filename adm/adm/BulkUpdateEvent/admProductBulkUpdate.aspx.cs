@@ -1,4 +1,5 @@
-﻿using System;
+﻿using hawooo;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -64,18 +65,16 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
     private void GetPaging(int total, int pagesize, int currentPage)
     {
         lit_page.Text = "";
-        var pages = (total + pagesize - 1) / pagesize;
+        var totalPages = (total + pagesize - 1) / pagesize;
         int middlepage = 5;
         int startPage = 1 ;
 
-        if (currentPage > middlepage && pages>10)
+        if (currentPage > middlepage && totalPages>10)
             startPage = (currentPage - middlepage)+1;
       
         int endPage = startPage + 10;
-        if (endPage >= pages )
-            endPage = pages;
-
-        
+        if (endPage >= totalPages )
+            endPage = totalPages;
 
         while (startPage <= endPage)
         {
@@ -215,9 +214,11 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
     private void MapEditModal(RepeaterItem item)
     {
         hfSysId.Value = GetText(item, "hfSysId");
+        var executeDate = DateTime.Parse(GetText(item, "hfExecuteStartDate"));
+
         var eventId = Guid.Parse(hfSysId.Value);
         var eventData = _productBulkUpdateService.GetBulkUpdateData(eventId);
-        btnEdit.Visible = true;
+        btnEdit.Enabled = executeDate>DateTime.Now;
         btn_sava.Visible = false;
         MapEditEvent(eventData);
         MapEditDetails(eventData);
@@ -447,12 +448,14 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
             Enum.TryParse(eventType, out type);
 
             lblEvenType.Text = type.ToString();
+
+           
         }
     }
 
     protected void btnExport_Click(object sender, EventArgs e)
     {
         var dt = _productBulkUpdateService.GetExportData();
-        ExcelHelper.DataTable2Excel(dt, "批次更新商品");
+        //PbClass.ExportDataTableToExcelUseNpoi(dt, "批次更新商品");
     }
 }

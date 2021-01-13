@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-/// <summary>
+﻿/// <summary>
 /// Summary description for BulkUpdateDetailsFactory
 /// </summary>
 public class BulkUpdateDetailsFactory

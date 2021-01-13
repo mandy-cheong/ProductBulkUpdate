@@ -1,0 +1,1345 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
+using System.Web.Script.Serialization;
+using System.Web.UI.WebControls;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using Microsoft.VisualBasic;
+using System.Data.SqlClient;
+using System.Globalization;
+using System.Linq;
+
+
+namespace hawooo
+{
+
+    /// <summary>
+    /// PbClass 的摘要描述
+    /// </summary>
+    public class PbClass
+    {
+        //WP55 0:否 1:是
+        public static string WestStatus(int status)
+        {
+            string val = "";
+            switch (status)
+            {
+                case 0: //否
+                    {
+                        val = @"<p class=""pnote"">
+                        <img src=""../images/icon/ps/no_icon_01.png"" />
+                        <span class=""am-vertical-align-middle"">不可寄送到東馬</span>
+                    </p>";
+                        break;
+                    }
+                case 1: //是
+                    {
+                        val = @"<p class=""pnote"">
+                        <img src=""../images/icon/ps/yes_icon_01.png"" />
+                        <span class=""am-vertical-align-middle"">可寄送到東馬</span>
+                    </p>";
+                        break;
+                    }
+            }
+            return val;
+        }
+        //B28 1:是 2:否
+        public static string CouponStatus(int status)
+        {
+            string val = "";
+            switch (status)
+            {
+                case 2: //否
+                    {
+                        val = @"<p class=""pnote"">
+                        <img src=""../images/icon/ps/no_icon_02.png"" />
+                        <span class=""am-vertical-align-middle"">不可使用全站折扣卷</span>
+                    </p>";
+                        break;
+                    }
+                case 1: //是
+                    {
+                        val = @"<p class=""pnote"">
+                        <img src=""../images/icon/ps/yes_icon_02.png"" />
+                        <span class=""am-vertical-align-middle"">可使用全站折扣卷</span>
+                    </p>";
+                        break;
+                    }
+            }
+            return val;
+        }
+        //WP40 1:台灣2:馬來3:經銷
+        public static string WrapStatus(int status)
+        {
+            string val = "";
+            if (status == 2 || status == 3)
+            {
+                val = @"<p class=""pnote"">
+                        <img src=""../images/icon/ps/no_icon_03.png"" />
+                        <span class=""am-vertical-align-middle"">不可裝進同個包裹內，需分開派送</span>
+                    </p>";
+
+            }
+            else if (status == 1)
+            {
+                val = @"<p class=""pnote"">
+                        <img src=""../images/icon/ps/yes_icon_03.png"" />
+                        <span class=""am-vertical-align-middle"">可裝進同個包裹內</span>
+                    </p>";
+
+            }
+            return val;
+        }
+        //海運商品
+        public static string AirShipStatus(int status)
+        {
+            string val = "";
+            if (status == 0)
+            {
+                val = @"<p class=""pnote"">
+                        <img src=""../images/icon/ps/no_icon_04.png"" />
+                        <span class=""am-vertical-align-middle"">不可空運，需由海運寄送</span>
+                    </p>";
+
+            }
+            else if (status == 1)
+            {
+                val = @"<p class=""pnote"">
+                        <img src=""../images/icon/ps/yes_icon_04.png"" />
+                        <span class=""am-vertical-align-middle"">可空運寄送</span>
+                    </p>";
+
+            }
+            return val;
+        }
+        public static string MpUrl(string pid, string bid, string name)
+        {
+            name = Regex.Replace(name, @"[\W_]+", "-").Trim('-');
+            string val = "https://www.hawooo.com/mobile/product.aspx?id=" + pid + "&bid=" + bid + "" + (name.Length > 0 ? "&name=" + name : "");
+            return val;
+        }
+        public static string DpUrl(string pid, string bid, string name)
+        {
+            name = Regex.Replace(name, @"[\W_]+", "-").Trim('-');
+            string val = "https://www.hawooo.com/user/productdetail.aspx?id=" + pid + "&bid=" + bid + "" + (name.Length > 0 ? "&name=" + name : "");
+            return val;
+        }
+
+        public static string InvolveAsiaTrack(string OID, string amount, string SessionID)
+        {
+            string rval = "<iframe src=\"https://tracking.shopstylers.com/aff_l?offer_id=547&adv_sub=" + OID + "&amount=" + amount + "&transaction_id=" + SessionID + "\" scrolling=\"no\" frameborder=\"0\" width = \"1\" height=\"1\"></iframe>";
+            return rval;
+        }
+
+        public static string ToKiloNum(string num)
+        {
+            if (decimal.Parse(num) <= 999)
+                return num.ToString();
+            else
+                return decimal.Parse(num).ToString("0,.#K", CultureInfo.InstalledUICulture);
+        }
+
+
+        public static string GetPageQueryString(List<string> excList = null)
+        {
+            string stxt = "?";
+            if (HttpContext.Current.Request.QueryString != null)
+            {
+                foreach (string s in HttpContext.Current.Request.QueryString.AllKeys)
+                {
+                    if (s == null)
+                        continue;
+                    if (!s.Equals(""))
+                    {
+                        bool isAdd = true;
+                        if (excList != null)
+                        {
+                            if (excList.Contains(s) == true)
+                            {
+                                isAdd = false;
+                            }
+                        }
+                        if (isAdd)
+                            stxt += "&" + s + "=" + HttpContext.Current.Request.QueryString[s].ToString();
+                    }
+
+                }
+            }
+            return stxt;
+        }
+
+        public static double DateDiff(DateTime stime, DateTime etime)
+        {
+            TimeSpan ts = etime - stime;
+            return ts.TotalSeconds;
+        }
+
+        public static string getPageStr(int pindex, double dataCount, double showCount, string qstr, string pageStr)
+        {
+            StringBuilder sb = new StringBuilder();
+            Double allPageCount = Math.Ceiling(dataCount / showCount); //總頁數
+            qstr = Regex.Replace(qstr, "(p=[0-9]+)", "").Replace("?", "");
+            string pstr = ""; //頁數字串
+            if (allPageCount <= showCount)
+            {
+                for (double i = 1; i <= allPageCount; i++)
+                {
+                    pstr = "p=" + i.ToString() + qstr;
+                    if (i.Equals(pindex))
+                    {
+                        sb.Append("<li class=\"am-active\"><a href=\"" + pageStr + "?" + pstr + "\">" + i.ToString() + "</a></li>");
+                    }
+                    else
+                    {
+                        sb.Append("<li><a href=\"" + pageStr + "?" + pstr + "\">" + i.ToString() + "</a></li>");
+                    }
+                }
+            }
+            else
+            {
+                if (pindex + showCount >= allPageCount) //最後頁數
+                {
+                    pstr = "p=" + (allPageCount - (showCount + 1)).ToString() + qstr;
+                    sb.Append("<li><a href=\"" + pageStr + "?" + qstr + "\">...</a></li>");
+                    for (double i = (allPageCount - showCount); i <= allPageCount; i++)
+                    {
+                        pstr = "p=" + i.ToString() + qstr;
+                        if (i.Equals(pindex))
+                        {
+                            sb.Append("<li class=\"am-active\"><a href=\"" + pageStr + "?" + pstr + "\">" + i.ToString() + "</a></li>");
+                        }
+                        else
+                        {
+                            sb.Append("<li><a href=\"" + pageStr + "?" + pstr + "\">" + i.ToString() + "</a></li>");
+                        }
+                    }
+                }
+                else //非最後頁數
+                {
+                    if (pindex <= showCount)
+                    {
+                        for (double i = 1; i <= showCount; i++)
+                        {
+                            pstr = "p=" + i.ToString() + qstr;
+                            if (i.Equals(pindex))
+                            {
+                                sb.Append("<li class=\"am-active\"><a href=\"" + pageStr + "?" + pstr + "\">" + i.ToString() + "</a></li>");
+                            }
+                            else
+                            {
+                                sb.Append("<li><a href=\"" + pageStr + "?" + pstr + "\">" + i.ToString() + "</a></li>");
+                            }
+                        }
+                        pstr = "p=" + (showCount + 1) + qstr;
+                        sb.Append("<li><a href=\"" + pageStr + "?" + pstr + "\">...</a></li>");
+                    }
+                    else
+                    {
+                        for (double i = pindex - (showCount / 2) - 1; i <= pindex + (showCount / 2) + 1; i++)
+                        {
+                            pstr = "p=" + i.ToString() + qstr;
+                            if (i.Equals(pindex))
+                            {
+                                sb.Append("<li class=\"am-active\"><a href=\"" + pageStr + "?" + pstr + "\">" + i.ToString() + "</a></li>");
+                            }
+                            else if ((i == pindex - (showCount / 2) - 1) || i == (pindex + (showCount / 2) + 1))
+                            {
+                                sb.Append("<li><a href=\"" + pageStr + "?" + pstr + "\">...</a></li>");
+                            }
+                            else
+                            {
+                                sb.Append("<li><a href=\"" + pageStr + "?" + pstr + "\">" + i.ToString() + "</a></li>");
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 獲得正確的手機號碼
+        /// </summary>
+        /// <param name="_phone"></param>
+        /// <returns></returns>
+        public static string getCartPhoneNumber(string _phone)
+        {
+            string mStr = Regex.Replace(_phone, "[^0-9]", "");
+            if (mStr.Length > 0)
+            {
+                if (!mStr.Substring(0, 3).ToString().Equals("016"))
+                {
+                    switch (mStr.Substring(0, 1).ToString())
+                    {
+                        case "1":
+                            {
+                                mStr = "0" + mStr;
+                                break;
+                            }
+                        case "6":
+                            {
+                                mStr = "01" + mStr;
+                                break;
+                            }
+                    }
+                }
+            }
+            return mStr;
+        }
+        /// <summary>
+        /// 獲得正確的手機號碼
+        /// </summary>
+        /// <param name="_phone"></param>
+        /// <returns></returns>
+        public static string getCorrectPhoneNumber(string _phone)
+        {
+            string mStr = Regex.Replace(_phone, "[^0-9]", "");
+            if (mStr.Length > 0)
+            {
+                switch (mStr.Substring(0, 1).ToString())
+                {
+                    case "0":
+                        {
+                            mStr = "+6" + mStr;
+                            break;
+                        }
+                    case "1":
+                        {
+                            mStr = "+60" + mStr;
+                            break;
+                        }
+                    default:
+                        {
+                            mStr = "+" + mStr;
+                            break;
+                        }
+                }
+            }
+            return mStr;
+        }
+
+        /// <summary>
+        /// 將簡體中文字元轉換成繁體中文
+        /// </summary>
+        /// <param name="strGB2312"></param>
+        /// <returns></returns>
+        public static string GB2312translateBig5(string strGB2312)
+        {
+            String rval = Strings.StrConv(strGB2312, VbStrConv.TraditionalChinese, 2052);
+            return rval;
+        }
+        /// <summary>
+        /// 將繁體中文字元轉換成簡體中文
+        /// </summary>
+        /// <param name="strGB2312"></param>
+        /// <returns></returns>
+        public static string Big5toGB2312(string strBig5)
+        {
+            String rval = Strings.StrConv(strBig5, VbStrConv.SimplifiedChinese, 2052);
+            return rval;
+        }
+
+
+        private static string[] mobiles = new[]
+        {
+        "midp", "j2me", "avant", "docomo", "novarra", "palmos", "palmsource",
+        "240x320", "opwv", "chtml","pda", "windows ce", "mmp/",
+        "blackberry", "mib/", "symbian", "wireless", "nokia", "hand", "mobi",
+        "phone", "cdm", "up.b", "audio", "sie-", "sec-", "samsung", "htc",
+        "mot-", "mitsu", "sagem", "sony", "alcatel", "lg", "eric", "vx",
+        "NEC", "philips", "mmm", "xx", "panasonic", "sharp", "wap", "sch",
+        "rover", "pocket", "benq", "java", "pt", "pg", "vox", "amoi",
+        "bird", "compal", "kg", "voda","sany", "kdd", "dbt", "sendo",
+        "sgh", "gradi", "jb", "dddi", "moto", "iphone", "android",
+        "iPod", "incognito", "webmate", "dream", "cupcake", "webos",
+        "s8000", "bada", "googlebot-mobile"
+        };
+
+        public static string FacebookTrack(decimal _sum)
+        {
+            string strTxt = "";
+            strTxt = "<script>(function () {";
+            strTxt += "var _fbq = window._fbq || (window._fbq = []);";
+            strTxt += "if (!_fbq.loaded) {";
+            strTxt += "var fbds = document.createElement('script');";
+            strTxt += "fbds.async = true;";
+            strTxt += "fbds.src = '//connect.facebook.net/en_US/fbds.js';";
+            strTxt += "var s = document.getElementsByTagName('script')[0];";
+            strTxt += "s.parentNode.insertBefore(fbds, s);";
+            strTxt += "_fbq.loaded = true;";
+            strTxt += "}";
+            strTxt += "})();";
+            strTxt += "window._fbq = window._fbq || [];";
+            strTxt += "window._fbq.push(['track', '967509866640000', { 'value': '" + _sum + "', 'currency': 'MYR' }]);";
+            strTxt += "window._fbq.push(['track', '167558666933725', { 'value': '" + _sum + "', 'currency': 'MYR' }]);";
+            strTxt += "</script>";
+            strTxt += "<noscript><img height=\"1\" width=\"1\" alt=\"\" style=\"display:none\" src=\"https://www.facebook.com/tr?ev=967509866640000&amp;cd[value]=0.00&amp;cd[currency]=MYR&amp;noscript=1\" /></noscript>";
+            strTxt += "<noscript><img height=\"1\" width=\"1\" alt=\"\" style=\"display:none\" src=\"https://www.facebook.com/tr?ev=167558666933725&amp;cd[value]=0.00&amp;cd[currency]=MYR&amp;noscript=1\" /></noscript>";
+            return strTxt;
+        }
+        public static string GoogleTrack(string ORM02, string ORM08)
+        {
+            string strTxt = "<script>";
+            strTxt += "(function (i, s, o, g, r, a, m) {";
+            strTxt += "i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {";
+            strTxt += "(i[r].q = i[r].q || []).push(arguments)";
+            strTxt += "}, i[r].l = 1 * new Date(); a = s.createElement(o),";
+            strTxt += "m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)";
+            strTxt += "})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');";
+
+            strTxt += "ga('create', 'UA-66652525-1', 'auto');";
+            strTxt += "ga('send', 'pageview');";
+            strTxt += "ga('require', 'ecommerce');";
+            strTxt += "ga('ecommerce:addTransaction', {" +
+                       "'id': '" + ORM02 + "'," +
+                       "'affiliation': 'hawooo'," +
+                       "'revenue': '" + ORM08 + "'," +
+                       "'shipping': '0'," +
+                       "'tax': '0'" +
+                       "});";
+            strTxt += "ga('ecommerce:addItem', {" +
+                      "'id': '" + ORM02 + "'," +
+                      "'name': ''," +
+                      "'sku': ''," +
+                      "'category': 'hawooo'," +
+                      "'price': '" + ORM08 + "'," +
+                      "'quantity': '1'" +
+                      "});";
+            strTxt += "ga('ecommerce:send');";
+            strTxt += "</script>";
+            return strTxt;
+        }
+        public static string GoogleTrack2(string ORM02)
+        {
+            string strSql = "SELECT ORM02,ORM06,ORM08,ORM09,ORD01,ORD02,ORD03,ORD04,ORD05,ORD06,(SELECT TOP 1 C06 FROM C INNER JOIN WPCLS ON C01=WPC03 WHERE WPC02=ORD01 AND C03=0 ) as C06  FROM ORDERM INNER JOIN ORDERD ON ORDERM.ORM01=ORDERD.ORM01 WHERE ORM02=@ORM02";
+            SqlCommand cmd = new SqlCommand();
+            cmd.CommandText = strSql;
+            cmd.Parameters.Add(SafeSQL.CreateInputParam("ORM02", SqlDbType.VarChar, ORM02));
+            DataTable dt = SqlDbmanager.queryBySql(cmd);
+            StringBuilder sb = new StringBuilder();
+            if (dt.Rows.Count > 0)
+            {
+                sb.Append("<script>");
+                //sb.Append("(function (i, s, o, g, r, a, m) {");
+                //sb.Append("i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {");
+                //sb.Append("(i[r].q = i[r].q || []).push(arguments)");
+                //sb.Append("}, i[r].l = 1 * new Date(); a = s.createElement(o),");
+                //sb.Append("m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)");
+                //sb.Append("})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');");
+                //sb.Append("ga('create', 'UA-66652525-1', 'auto');");
+                //sb.Append("ga('require', 'ec');");
+                //order transaction
+                foreach (DataRow dr in dt.Rows)
+                {
+                    sb.Append("ga('ec:addProduct', {");
+                    sb.Append("'id': '" + dr["ORD01"].ToString() + "',");
+                    sb.Append("'name': '" + dr["ORD02"].ToString().Replace("'", "") + "-" + dr["ORD04"].ToString().Replace("'", "") + "',");
+                    sb.Append("'sku': '" + dr["ORD03"].ToString() + "',");
+                    sb.Append("'category': '" + dr["C06"].ToString() + "',");
+                    sb.Append("'price': '" + dr["ORD05"].ToString() + "',");
+                    sb.Append("'quantity': '" + dr["ORD06"].ToString() + "'");
+                    sb.Append("});");
+                }
+
+                sb.Append("ga('ec:setAction','purchase', {");
+                sb.Append("'id': '" + dt.Rows[0]["ORM02"].ToString() + "',");
+                sb.Append("'revenue': '" + dt.Rows[0]["ORM08"].ToString() + "',");
+                sb.Append("'shipping': '" + dt.Rows[0]["ORM06"].ToString() + "',");
+                sb.Append("'tax': '0',");
+                sb.Append("'coupon': '" + dt.Rows[0]["ORM09"].ToString() + "'");
+                sb.Append("});");
+
+                sb.Append("ga('send', 'pageview');");
+                sb.Append("</script>");
+            }
+            return sb.ToString();
+        }
+
+
+        //public static string GoogleTrack2(string ORM02)
+        //{
+        //    string strSql = "SELECT ORM02,ORM08,ORD01,ORD02,ORD03,ORD04,ORD05,ORD06,(SELECT TOP 1 C06 FROM C INNER JOIN WPCLS ON C01=WPC03 WHERE WPC02=ORD01 AND C03=0 ) as C06  FROM ORDERM INNER JOIN ORDERD ON ORDERM.ORM01=ORDERD.ORM01 WHERE ORM02=@ORM02";
+        //    SqlCommand cmd = new SqlCommand();
+        //    cmd.CommandText = strSql;
+        //    cmd.Parameters.Add(SafeSQL.CreateInputParam("ORM02", SqlDbType.VarChar, ORM02));
+        //    DataTable dt = SqlDbmanager.queryBySql(cmd);
+        //    StringBuilder sb = new StringBuilder();
+        //    if (dt.Rows.Count > 0)
+        //    {
+        //        sb.Append("<script>");
+
+        //        sb.Append("(function (i, s, o, g, r, a, m) {");
+        //        sb.Append("i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {");
+        //        sb.Append("(i[r].q = i[r].q || []).push(arguments)");
+        //        sb.Append("}, i[r].l = 1 * new Date(); a = s.createElement(o),");
+        //        sb.Append("m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)");
+        //        sb.Append("})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');");
+        //        sb.Append("ga('create', 'UA-66652525-1', 'auto');");
+        //        sb.Append("ga('send', 'pageview');");
+
+        //        sb.Append("ga('require', 'ec');");
+        //        //order transaction
+        //        sb.Append("ga('ecommerce:addTransaction', {");
+        //        sb.Append("'id': '" + dt.Rows[0]["ORM02"].ToString() + "',");
+        //        sb.Append("'affiliation': 'hawooo',");
+        //        sb.Append("'revenue': '" + dt.Rows[0]["ORM08"].ToString() + "',");
+        //        sb.Append("'shipping': '0',");
+        //        sb.Append("'tax': '0'");
+        //        sb.Append("});");
+
+        //        foreach (DataRow dr in dt.Rows)
+        //        {
+        //            sb.Append("ga('ecommerce:addItem', {");
+        //            sb.Append("'id': '" + dr["ORD01"].ToString() + "',");
+        //            sb.Append("'name': '" + dr["ORD02"].ToString() + "-" + dr["ORD04"].ToString() + "',");
+        //            sb.Append("'sku': '" + dr["ORD03"].ToString() + "',");
+        //            sb.Append("'category': '" + dr["C06"].ToString() + "',");
+        //            sb.Append("'price': '" + dr["ORD05"].ToString() + "',");
+        //            sb.Append("'quantity': '" + dr["ORD06"].ToString() + "'");
+        //            sb.Append("});");
+        //        }
+
+        //        sb.Append("ga('ecommerce:send');");
+        //        sb.Append("</script>");
+        //    }
+        //    return sb.ToString();
+        //}
+        /// <summary>
+        /// 使用NOPI-ExcelToDataTable
+        /// </summary>
+        /// <param name="fileName">檔案名稱</param>
+        /// <returns>DataTable</returns>
+        public static DataTable ReadExcelToDataTable(string fileName)
+        {
+            using (FileStream fs = new FileStream(fileName, FileMode.Open))
+            {
+                HSSFWorkbook wb = new HSSFWorkbook(fs);
+                ISheet sheet = wb.GetSheetAt(0);
+                DataTable table = new DataTable();
+                //由第一列取標題做為欄位名稱
+                IRow headerRow = sheet.GetRow(0);
+                int cellCount = headerRow.LastCellNum;
+                for (int i = headerRow.FirstCellNum; i < cellCount; i++)
+                    //以欄位文字為名新增欄位，此處全視為字串型別以求簡化
+                    table.Columns.Add(
+                        new DataColumn(headerRow.GetCell(i).StringCellValue));
+
+                //略過第零列(標題列)，一直處理至最後一列
+                for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++)
+                {
+                    IRow row = sheet.GetRow(i);
+                    if (row == null) continue;
+                    DataRow dataRow = table.NewRow();
+                    //依先前取得的欄位數逐一設定欄位內容
+                    for (int j = row.FirstCellNum; j < cellCount; j++)
+                        if (row.GetCell(j) != null)
+                            //如要針對不同型別做個別處理，可善用.CellType判斷型別
+                            //再用.StringCellValue, .DateCellValue, .NumericCellValue...取值
+                            //此處只簡單轉成字串
+                            dataRow[j] = row.GetCell(j).ToString();
+                    table.Rows.Add(dataRow);
+                }
+                return table;
+            }
+        }
+        public static DataTable TxtConvertToDataTable(string File, string TableName, string delimiter)
+        {
+            DataTable dt = new DataTable();
+            DataSet ds = new DataSet();
+            StreamReader s = new StreamReader(File, System.Text.Encoding.Default);
+            //string ss = s.ReadLine();//skip the first line
+            string[] columns = s.ReadLine().Split(delimiter.ToCharArray());
+            ds.Tables.Add(TableName);
+            foreach (string col in columns)
+            {
+                bool added = false;
+                string next = "";
+                int i = 0;
+                while (!added)
+                {
+                    string columnname = col + next;
+                    columnname = columnname.Replace("#", "");
+                    columnname = columnname.Replace("'", "");
+                    columnname = columnname.Replace("&", "");
+
+                    if (!ds.Tables[TableName].Columns.Contains(columnname))
+                    {
+                        ds.Tables[TableName].Columns.Add(columnname.ToUpper());
+                        added = true;
+                    }
+                    else
+                    {
+                        i++;
+                        next = "_" + i.ToString();
+                    }
+                }
+            }
+
+            string AllData = s.ReadToEnd();
+            string[] rows = AllData.Split("\n".ToCharArray());
+
+            foreach (string r in rows)
+            {
+                string[] items = r.Split(delimiter.ToCharArray());
+                ds.Tables[TableName].Rows.Add(items);
+            }
+
+            s.Close();
+
+            dt = ds.Tables[0];
+
+            return dt;
+        }
+
+        /// <summary>
+        /// 判斷是否為行動版瀏覽器
+        /// </summary>
+        /// <param name="UserAnget"></param>
+        /// <returns></returns>
+        public static bool isMobile(string UserAnget)
+        {
+            if (string.IsNullOrEmpty(UserAnget))
+                return false;
+
+            foreach (var item in mobiles)
+            {
+                // ReSharper disable once StringIndexOfIsCultureSpecific.1
+                if (UserAnget.ToLower().IndexOf(item) != -1)
+                    return true;
+            }
+            return false;
+        }
+        public static bool IsMobile()
+        {
+            if (HttpContext.Current.Request.UserAgent != null)
+            {
+                string userAgent = HttpContext.Current.Request.UserAgent.ToString();
+                if (string.IsNullOrEmpty(userAgent))
+                    return false;
+
+                foreach (var item in mobiles)
+                {
+                    if (userAgent.ToLower().IndexOf(item, StringComparison.Ordinal) != -1)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+        public static string SHOWWPA10(decimal _WPA06, decimal _WPA10)
+        {
+            if (_WPA10 > _WPA06)
+            {
+                return " <span style=\"text-decoration: line-through; color: #808080; font-size:12px\">RM" + _WPA10.ToString() + "</span>";
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        public static string GetSave(string price, string salePrice, string rate, LangType lg = LangType.zh)
+        {
+            decimal _rate = decimal.Parse(rate);
+            decimal _price = decimal.Parse(price);
+            decimal _salePrice = decimal.Parse(salePrice);
+            if (_price - _salePrice == 0)
+                return "";
+            else
+            {
+                var rval = Math.Round((_price - _salePrice) / _rate, 1, MidpointRounding.AwayFromZero).ToString("0.00");
+                return "-RM" + rval;
+                //if (lg.Equals(LangType.en))
+                //    return "-RM" + rval;
+                //else
+                //    return "省" + rval;
+            }
+            //decimal savePrice = Math.Round(((_salePrice / _price) - 1) * 100, 1, MidpointRounding.AwayFromZero);
+            //return (savePrice < 0 ? savePrice.ToString("#0.00") + "%" : "");
+        }
+        public static string GetPrice(string price, string rate)
+        {
+            decimal _rate = decimal.Parse(rate);
+            decimal _price = decimal.Parse(price);
+            return Math.Round((_price / _rate), 1, MidpointRounding.AwayFromZero).ToString("#0.00");
+        }
+        public static Tuple<string, string, string> CashRate(string price, string salePrice, string rate)
+        {
+            decimal _price = decimal.Parse(price);
+            decimal _salePrice = decimal.Parse(salePrice);
+            decimal _rate = decimal.Parse(rate);
+            _price = Math.Round((_price / _rate), 1, MidpointRounding.AwayFromZero);
+            _salePrice = Math.Round((_salePrice / _rate), 1, MidpointRounding.AwayFromZero);
+            decimal savePrice = Math.Round(((_salePrice / _price) - 1) * 100, 1, MidpointRounding.AwayFromZero);
+            return Tuple.Create(_price.ToString("#0.00"), _salePrice.ToString("#0.00"),
+                (savePrice < 0 ? "-" + savePrice.ToString("#0.00") + "%" : ""));
+        }
+        public static decimal CashRate(decimal price, decimal rate)
+        {
+            decimal cd;
+            string rval = Math.Round(price / rate, 1, MidpointRounding.AwayFromZero).ToString("#0.00");
+            decimal d = Convert.ToDecimal(rval);
+            return d;
+        }
+        public static decimal CashRate(string price, string rate)
+        {
+            decimal cd;
+            price = decimal.TryParse(price, out cd) ? price : "0";
+            string rval = Math.Round(Convert.ToDecimal(price) / Convert.ToDecimal(rate), 1, MidpointRounding.AwayFromZero).ToString("#0.00");
+            decimal d = Convert.ToDecimal(rval);
+            return d;
+        }
+        public static decimal CashRate(string price, Currency currency)
+        {
+            decimal rate = Rate.GetRate(currency);
+            string rval = Math.Round(Convert.ToDecimal(price) / Convert.ToDecimal(rate), 1, MidpointRounding.AwayFromZero).ToString("#0.00");
+            decimal d = Convert.ToDecimal(rval);
+            return d;
+        }
+        public static bool TimeBetween(DateTime input, DateTime date1, DateTime date2)
+        {
+            return (input > date1 && input < date2);
+        }
+        public static bool Between(DateTime input, DateTime date1, DateTime date2)
+        {
+            return (input > date1 && input < date2);
+        }
+        public PbClass()
+        {
+            //
+            // TODO: 在這裡新增建構函式邏輯
+            //
+        }
+        public static string GetPageNum2(int totalPage, int showCount)
+        {
+            int total = totalPage;
+            int page;
+            if (HttpContext.Current.Request.QueryString["page"] != null)
+                page = Convert.ToInt32(HttpContext.Current.Request.QueryString["page"]);
+            else
+                page = 1;
+            int allpage = 0;
+            int next = 0;
+            int pre = 0;
+            int startcount = 0;
+            int endcount = 0;
+            string pagestr = "";
+
+            if (page < 1) { page = 1; }
+            //計算總頁數
+            if (showCount != 0)
+            {
+                allpage = (total / showCount);
+                allpage = ((total % showCount) != 0 ? allpage + 1 : allpage);
+                allpage = (allpage == 0 ? 1 : allpage);
+            }
+            next = page + 1;
+            pre = page - 1;
+            startcount = (page + 5) > allpage ? allpage - 9 : page - 4;//中間頁數起始值
+            //中間頁數結束
+            endcount = page < 5 ? 10 : page + 5;
+            if (startcount < 1) { startcount = 1; }
+            if (allpage < endcount) { endcount = allpage; }
+
+            string querystring = "";
+            if (HttpContext.Current.Request.QueryString.HasKeys())
+            {
+                foreach (string s in HttpContext.Current.Request.QueryString.AllKeys)
+                {
+                    if (s != null)
+                    {
+                        if (!s.Equals("page"))
+                            querystring += "&" + s + "=" + HttpContext.Current.Request.QueryString[s];
+                    }
+                }
+            }
+            pagestr = "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=1" + querystring + "\">&laquo;</a></li>";
+            for (int i = startcount; i <= endcount; i++)
+            {
+                pagestr += page == i ? "<li class=\"am-active\"><a href=\"#\">" + i + "</a></li>" : "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + i + querystring + "\">" + i + "</a></li>";
+            }
+            pagestr += page != allpage ? "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + allpage + querystring + "\">&raquo;</a></li>" : "<li class=\"am-disabled\"><a href=\"#\">&raquo;</a></li>";
+            return pagestr;
+        }
+        public static string GetPageNum(int allsize, int pagesize, List<string> qlist = null)
+        {
+            int total = allsize;
+            int page;
+            if (HttpContext.Current.Request.QueryString["page"] != null)
+                page = Convert.ToInt32(HttpContext.Current.Request.QueryString["page"]);
+            else
+                page = 1;
+            int allpage = 0;
+            int next = 0;
+            int pre = 0;
+            int startcount = 0;
+            int endcount = 0;
+            string pagestr = "";
+
+            if (page < 1) { page = 1; }
+            //計算總頁數
+            if (pagesize != 0)
+            {
+                allpage = (total / pagesize);
+                allpage = ((total % pagesize) != 0 ? allpage + 1 : allpage);
+                allpage = (allpage == 0 ? 1 : allpage);
+            }
+            next = page + 1;
+            pre = page - 1;
+            startcount = (page + 5) > allpage ? allpage - 9 : page - 4;//中間頁數起始值
+            //中間頁數結束
+            endcount = page < 5 ? 10 : page + 5;
+            if (startcount < 1) { startcount = 1; }
+            if (allpage < endcount) { endcount = allpage; }
+
+            string querystring = "";
+            if (qlist != null)
+            {
+                foreach (string s in qlist)
+                {
+                    if (s != null)
+                    {
+                        if (!s.Equals("page"))
+                            querystring += "&" + s;
+                    }
+
+                }
+            }
+
+            pagestr = page == 1 ? "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=1" + querystring + "\">&laquo;</a></li>" : "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=1" + querystring + "\">&laquo;</a></li>";
+            for (int i = startcount; i <= endcount; i++)
+            {
+                pagestr += page == i ? "<li class=\"am-active\"><a href=\"#\">" + i + "</a></li>" : "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + i + querystring + "\">" + i + "</a></li>";
+            }
+            pagestr += page != allpage ? "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + allpage + querystring + "\">&raquo;</a></li>" : "<li class=\"am-disabled\"><a href=\"#\">&raquo;</a></li>";
+            return pagestr;
+        }
+        public static string GetPageNum(DataTable dt, Repeater repetername, int pagesize, List<string> qlist = null)
+        {
+            PagedDataSource objPds = new PagedDataSource();
+            objPds.DataSource = dt.DefaultView;
+            objPds.AllowPaging = true;
+            int total = dt.Rows.Count;
+            objPds.PageSize = pagesize;
+            int page;
+            if (HttpContext.Current.Request.QueryString["page"] != null)
+                page = Convert.ToInt32(HttpContext.Current.Request.QueryString["page"]);
+            else
+                page = 1;
+            objPds.CurrentPageIndex = page - 1;
+            repetername.DataSource = objPds;
+            repetername.DataBind();
+            int allpage = 0;
+            int next = 0;
+            int pre = 0;
+            int startcount = 0;
+            int endcount = 0;
+            string pagestr = "";
+
+            if (page < 1) { page = 1; }
+            //計算總頁數
+            if (pagesize != 0)
+            {
+                allpage = (total / pagesize);
+                allpage = ((total % pagesize) != 0 ? allpage + 1 : allpage);
+                allpage = (allpage == 0 ? 1 : allpage);
+            }
+            next = page + 1;
+            pre = page - 1;
+            startcount = (page + 5) > allpage ? allpage - 9 : page - 4;//中間頁數起始值
+            //中間頁數結束
+            endcount = page < 5 ? 10 : page + 5;
+            if (startcount < 1) { startcount = 1; }
+            if (allpage < endcount) { endcount = allpage; }
+
+            if (qlist == null)
+            {
+                //pagestr = "共" + allpage + "頁";
+                pagestr = page == 1 ? "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=1\">&laquo;</a></li>" : "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=1\">&laquo;</a></li>";
+
+                for (int i = startcount; i <= endcount; i++)
+                {
+                    pagestr += page == i ? "<li class=\"am-active\"><a href=\"#\">" + i + "</a></li>" : "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + i + "\">" + i + "</a></li>";
+                }
+                pagestr += page != allpage ? "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + allpage + "\">&raquo;</a></li>" : "<li class=\"am-disabled\"><a href=\"#\">&raquo;</a></li>";
+            }
+            else
+            {
+                string querystring = "";
+                foreach (string s in qlist)
+                {
+                    querystring += "&" + s;
+                }
+                pagestr = page == 1 ? "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=1" + querystring + "\">&laquo;</a></li>" : "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=1" + querystring + "\">&laquo;</a></li>";
+
+                for (int i = startcount; i <= endcount; i++)
+                {
+                    pagestr += page == i ? "<li class=\"am-active\"><a href=\"#\">" + i + "</a></li>" : "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + i + querystring + "\">" + i + "</a></li>";
+                }
+                pagestr += page != allpage ? "<li><a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + allpage + querystring + "\">&raquo;</a></li>" : "<li class=\"am-disabled\"><a href=\"#\">&raquo;</a></li>";
+
+                //pagestr += page > 1 ? "<a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=1" + querystring + "\">首頁</a>&nbsp;&nbsp;<a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + pre + querystring + "\"> 上一頁</a>" : "首頁 上一頁";
+
+                //for (int i = startcount; i <= endcount; i++)
+                //{
+                //    pagestr += page == i ? "&nbsp;&nbsp;<font color=\"#ff0000\">" + i + "</font>" : "&nbsp;&nbsp;<a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + i + querystring + "\">" + i + "</a>";
+                //}
+                //pagestr += page != allpage ? "&nbsp;&nbsp;<a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + next + querystring + "\">下一頁</a>&nbsp;&nbsp;<a href=\"" + HttpContext.Current.Request.CurrentExecutionFilePath + "?page=" + allpage + querystring + "\">最後一頁</a>" : " 下一頁 最後一頁";
+            }
+            return pagestr;
+        }
+
+        public static DataTable getCountry()
+        {
+            DataSet ds = new DataSet();
+            ds.ReadXmlSchema(HttpContext.Current.Server.MapPath("../App_Data/PostCodeService.xml"));
+            ds.ReadXml(HttpContext.Current.Server.MapPath("../App_Data/PostCodeService.xml"));
+            DataTable l_table = ds.Tables[0];
+            return l_table;
+        }
+
+
+        public static DataTable getCity(string str_id)
+        {
+            //ddl_A1_2.Items.Clear();
+            DataSet ds = new DataSet();
+            ds.ReadXmlSchema(HttpContext.Current.Server.MapPath("../App_Data/PostCodeService.xml"));
+            ds.ReadXml(HttpContext.Current.Server.MapPath("../App_Data/PostCodeService.xml"));
+            DataTable l_table = ds.Tables[1];
+            l_table.DefaultView.RowFilter = "county_Id='" + str_id + "'";
+            l_table = l_table.DefaultView.ToTable();
+            return l_table;
+        } //獲得區域對應的城市
+
+        //加密
+        public static string desEncryptBase64(string source)
+        {
+            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            byte[] key = Encoding.ASCII.GetBytes("26759446");
+            byte[] iv = Encoding.ASCII.GetBytes("82278725");
+            byte[] dataByteArray = Encoding.UTF8.GetBytes(source);
+
+            des.Key = key;
+            des.IV = iv;
+            string encrypt = "";
+            using (MemoryStream ms = new MemoryStream())
+            using (CryptoStream cs = new CryptoStream(ms, des.CreateEncryptor(), CryptoStreamMode.Write))
+            {
+                cs.Write(dataByteArray, 0, dataByteArray.Length);
+                cs.FlushFinalBlock();
+                encrypt = Convert.ToBase64String(ms.ToArray());
+            }
+            return encrypt;
+        }
+
+        //解密
+        public static string desDecryptBase64(string encrypt)
+        {
+            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            byte[] key = Encoding.ASCII.GetBytes("26759446");
+            byte[] iv = Encoding.ASCII.GetBytes("82278725");
+            des.Key = key;
+            des.IV = iv;
+
+            byte[] dataByteArray = Convert.FromBase64String(encrypt);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (CryptoStream cs = new CryptoStream(ms, des.CreateDecryptor(), CryptoStreamMode.Write))
+                {
+                    cs.Write(dataByteArray, 0, dataByteArray.Length);
+                    cs.FlushFinalBlock();
+                    return Encoding.UTF8.GetString(ms.ToArray());
+                }
+            }
+        }
+
+        //獲得不重複ID(16位元)
+        public static string GenerateStringID()
+        {
+            long i = 1;
+            foreach (byte b in Guid.NewGuid().ToByteArray())
+            {
+                i *= ((int)b + 1);
+            }
+            return string.Format("{0:x}", i - DateTime.Now.Ticks);
+        }
+
+        //獲得19位數序列
+        public static long GenerateIntID()
+        {
+            byte[] buffer = Guid.NewGuid().ToByteArray();
+            return BitConverter.ToInt64(buffer, 0);
+        }
+        //自動ID
+        public static string getIntGUID()
+        {
+            byte[] buffer = Guid.NewGuid().ToByteArray();
+            return BitConverter.ToInt64(buffer, 0).ToString();
+        }
+
+        public static string getGUID32()
+        {
+            Guid g = Guid.NewGuid();
+            return g.ToString().Replace("-", "").ToString();
+        }
+
+        public static string getDefaultGUID()
+        {
+            Guid g = Guid.NewGuid();
+            return g.ToString();
+        }
+        public static DataTable GetDataTableFromObjects(object[] objects)
+        {
+            if (objects != null && objects.Length > 0)
+            {
+                Type t = objects[0].GetType();
+                DataTable dt = new DataTable(t.Name);
+                foreach (PropertyInfo pi in t.GetProperties())
+                {
+                    dt.Columns.Add(new DataColumn(pi.Name));
+                }
+                foreach (var o in objects)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (DataColumn dc in dt.Columns)
+                    {
+                        dr[dc.ColumnName] = o.GetType().GetProperty(dc.ColumnName).GetValue(o, null);
+                    }
+                    dt.Rows.Add(dr);
+                }
+                return dt;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 取得正確的Client端IP
+        /// </summary>
+        /// <returns></returns>
+        //public static string GetClientIP()
+        //{
+        //    //判所client端是否有設定代理伺服器
+        //    if (HttpContext.Current.Request.ServerVariables["HTTP_VIA"] == null)
+        //        return HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"].ToString();
+        //    else
+        //        return HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].ToString();
+        //}
+
+        /// <summary>
+
+        /// 移除html tag
+
+        /// </summary>
+
+        /// <param name="htmlSource"></param>
+
+        /// <returns></returns>
+
+        public static string RemoveHTMLTag(string htmlSource)
+        {
+            //移除  javascript code.
+            htmlSource = Regex.Replace(htmlSource, @"<script[\d\D]*?>[\d\D]*?</script>", String.Empty);
+            //移除html tag.
+            htmlSource = Regex.Replace(htmlSource, @"<[^>]*>", String.Empty);
+            return htmlSource;
+
+        }
+        public static string GetMD5(string strVal)
+        {
+            MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+            string strEncrypt32Byte = string.Empty;
+
+            try
+            {
+                byte[] b = md5.ComputeHash(Encoding.UTF8.GetBytes(strVal));
+                strEncrypt32Byte = BitConverter.ToString(b).Replace("-", string.Empty);
+            }
+            catch
+            {
+                strEncrypt32Byte = string.Empty;
+            }
+            finally
+            {
+                md5 = null;
+            }
+            return strEncrypt32Byte;
+        }
+        /// <summary>
+        /// MD5編碼
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string MD5Code(string str)
+        {
+            MD5CryptoServiceProvider md5Hasher = new MD5CryptoServiceProvider();
+            Byte[] data = md5Hasher.ComputeHash(new System.Text.ASCIIEncoding().GetBytes(str));
+            System.Text.StringBuilder sBuilder = new StringBuilder();
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+            return sBuilder.ToString();
+        }
+
+        public static string PayTxt(string sid)
+        {
+            string rval = "";
+            switch (sid)
+            {
+                case "0":
+                    {
+                        rval = "CIMB 銀行匯款";
+                        break;
+                    }
+                case "1":
+                    {
+                        rval = "MOLPAY 付款";
+                        break;
+                    }
+            }
+            return rval;
+        }
+        public static void ExportDataTableToExcelUseNpoi(List<DataTable> dts, string fileName)
+        {
+            MemoryStream ms = new MemoryStream();
+            HSSFWorkbook wb = new HSSFWorkbook();
+            int sval = 0;
+            foreach (DataTable dt in dts)
+            {
+                //建立Excel 2003檔案
+
+                ISheet ws;
+                ////建立Excel 2007檔案
+                //IWorkbook wb = new XSSFWorkbook();
+                //ISheet ws;
+
+                if (dt.TableName != string.Empty)
+                {
+                    ws = wb.CreateSheet(dt.TableName);
+                }
+                else
+                {
+                    sval += 1;
+                    ws = wb.CreateSheet("Sheet" + sval);
+                }
+
+                ws.CreateRow(0);//第一行為欄位名稱
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    ws.GetRow(0).CreateCell(i).SetCellValue(dt.Columns[i].ColumnName);
+                }
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    ws.CreateRow(i + 1);
+                    for (int j = 0; j < dt.Columns.Count; j++)
+                    {
+                        ws.GetRow(i + 1).CreateCell(j).SetCellValue(dt.Rows[i][j].ToString());
+                    }
+                }
+            }
+            wb.Write(ms);
+            HttpContext.Current.Response.AddHeader("Content-Disposition", string.Format("attachment; filename=" + fileName + ".xls"));
+            HttpContext.Current.Response.BinaryWrite(ms.ToArray());
+            wb = null;
+            ms.Close();
+            ms.Dispose();
+        }
+        public static void ExportDataTableToExcelUseNpoi(DataTable dt, string fileName)
+        {
+            //建立Excel 2003檔案
+            HSSFWorkbook wb = new HSSFWorkbook();
+            ISheet ws;
+            ////建立Excel 2007檔案
+            //IWorkbook wb = new XSSFWorkbook();
+            //ISheet ws;
+
+            if (dt.TableName != string.Empty)
+            {
+                ws = wb.CreateSheet(dt.TableName);
+            }
+            else
+            {
+                ws = wb.CreateSheet("Sheet1");
+            }
+
+            ws.CreateRow(0);//第一行為欄位名稱
+            for (int i = 0; i < dt.Columns.Count; i++)
+            {
+                ws.GetRow(0).CreateCell(i).SetCellValue(dt.Columns[i].ColumnName);
+            }
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                ws.CreateRow(i + 1);
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    ws.GetRow(i + 1).CreateCell(j).SetCellValue(dt.Rows[i][j].ToString());
+                }
+            }
+
+            MemoryStream ms = new MemoryStream();
+            wb.Write(ms);
+            HttpContext.Current.Response.AddHeader("Content-Disposition", string.Format("attachment; filename=" + fileName + ".xls"));
+            HttpContext.Current.Response.BinaryWrite(ms.ToArray());
+            wb = null;
+            ms.Close();
+            ms.Dispose();
+        }
+        public static void ExportDataTableToExcel(DataTable pDataTable, string strExportFileName)
+        {
+            int tRowCount = pDataTable.Rows.Count;
+            int tColumnCount = pDataTable.Columns.Count;
+
+            HttpContext.Current.Response.Expires = 0;
+            HttpContext.Current.Response.Clear();
+            HttpContext.Current.Response.Buffer = true;
+            HttpContext.Current.Response.Charset = "unicode";
+            HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.Unicode;
+            HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
+            HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + strExportFileName + ".xls");
+            HttpContext.Current.Response.Write("<meta http-equiv=Content-Type content=text/html;charset=unicode>");
+
+            HttpContext.Current.Response.Write("<Table borderColor=black border=1>");
+            HttpContext.Current.Response.Write("\n <TR>");
+            for (int i = 0; i < tColumnCount; i++)
+            {
+                HttpContext.Current.Response.Write("\n <TD align=\"center\" bgcolor = #fff8dc>");
+                HttpContext.Current.Response.Write(pDataTable.Columns[i].ColumnName);
+                HttpContext.Current.Response.Write("\n </TD>");
+            }
+            HttpContext.Current.Response.Write("\n </TR>");
+            for (int j = 0; j < tRowCount; j++)
+            {
+                HttpContext.Current.Response.Write("\n <TR>");
+                for (int k = 0; k < tColumnCount; k++)
+                {
+                    HttpContext.Current.Response.Write("\n <TD align=\"left\" x:num>");
+                    HttpContext.Current.Response.Write(pDataTable.Rows[j][k].ToString());
+                    HttpContext.Current.Response.Write("\n </TD>");
+                }
+                HttpContext.Current.Response.Write("\n </TR>");
+            }
+            HttpContext.Current.Response.Write("</Table>");
+            HttpContext.Current.Response.End();
+        }
+        public static string GuidToBase64(Guid guid)
+        {
+            return Convert.ToBase64String(guid.ToByteArray()).Replace("/", "-").Replace("+", "_").Replace("=", "");
+        }
+
+        public static Guid Base64ToGuid(string base64)
+        {
+            Guid guid = default(Guid);
+            base64 = base64.Replace("-", "/").Replace("_", "+") + "==";
+            try
+            {
+                guid = new Guid(Convert.FromBase64String(base64));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Bad Base64 conversion to GUID", ex);
+            }
+
+            return guid;
+        }
+
+
+        public string ConvertDataTabletoString(DataTable dt)
+        {
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+            Dictionary<string, object> row;
+            foreach (DataRow dr in dt.Rows)
+            {
+                row = new Dictionary<string, object>();
+                foreach (DataColumn col in dt.Columns)
+                {
+                    row.Add(col.ColumnName, dr[col]);
+                }
+                rows.Add(row);
+            }
+
+            return serializer.Serialize(rows);
+        }
+
+        public static string SearchTxtAlgo()
+        {
+            string stxt = HttpContext.Current.Request.QueryString.ToString();
+            stxt = stxt.Replace("H&J", "H%26J");
+            string[] splitAry = stxt.Split('&');
+            int index = Array.IndexOf(splitAry, "stxt");
+            var val = splitAry.FirstOrDefault(v => v.Contains("stxt"));
+            stxt = val.Split('=')[1];
+            stxt = HttpContext.Current.Server.UrlDecode(stxt);
+            stxt = PbClass.GB2312translateBig5(stxt);
+            stxt = stxt.Replace("臺", "台");
+            return stxt;
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public static string GetClientIP()
+        {
+
+            string ip = "";
+            if (HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"] != null)
+            {
+                if (HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].ToString() == string.Empty || HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].ToUpper().IndexOf("UNKNOWN", StringComparison.Ordinal) > 0)
+                {
+                    ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                }
+                else if (HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].IndexOf(",", StringComparison.Ordinal) > 0)
+                {
+                    ip = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].Substring(1, HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].IndexOf(",", StringComparison.Ordinal) - 1);
+                }
+                else if (HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].IndexOf(";", StringComparison.Ordinal) > 0)
+                {
+                    ip = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].Substring(1, HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].IndexOf(";", StringComparison.Ordinal) - 1);
+                }
+                else
+                {
+                    ip = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+                }
+            }
+
+            return ip;
+        }
+
+        public static bool CheckExtIP()
+        {
+            string[] strIps = new string[] { "61.218.40.1", "211.24.79.224", "211.24.79.176" };
+            string ip = GetClientIP();
+            if (strIps.Contains(ip))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+}

@@ -12,6 +12,8 @@
     background-color: #29ABB3!important;
      }
  </style>
+        <script src="../assets/js/amazeui.datetimepicker.min.js"></script>
+      <link href="../assets/css/amazeui.datetimepicker.css" rel="stylesheet" />
 </asp:Content>
 
 
@@ -24,7 +26,7 @@
             <div class="am-modal am-modal-no-btn" tabindex="-1" id="AddModal">
         <div class="am-modal-dialog">
             <div class="am-modal-hd">
-                新增批次商品更新
+                    批次商品更新
          <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
             </div>
             <div class="am-modal-bd">
@@ -151,10 +153,14 @@
                                         function setDateFormat() {
 
                                             var opt = { dateFormat: 'yy-mm-dd' };
+                                            var opt2 = {
+                                                format: 'yyyy-mm-dd hh:ii:ss',
+                                                autoclose: true,
+                                                todayBtn: true}
                                             $("#txtAddExecuteSDate").datepicker(opt);
                                             $("#txtAddExecuteEDate").datepicker(opt);
-                                            $("#txtAddProductSDate").datepicker(opt);
-                                            $("#txtAddProductEDate").datepicker(opt);
+                                            $("#txtAddProductSDate").datetimepicker(opt2);
+                                            $("#txtAddProductEDate").datetimepicker(opt2);
 
                                         }
 
@@ -278,11 +284,12 @@
                                             <td><%#Eval("EventName") %></td>
                                             <td><asp:Label runat="server" ID="lblEvenType"></asp:Label></td>
 
-                                            <td><%#Eval("ExecuteStartDate",  "{0:yyyy-MM-dd hhmm}") %></td>
-                                            <td><%#Eval("CDate","{0:yyyy-MM-dd hhmm}") %></td>
+                                            <td><%#Eval("ExecuteStartDate",  "{0:yyyy-MM-dd HH:mm}") %></td>
+                                            <td><%#Eval("CDate","{0:yyyy-MM-dd HH:mm}") %></td>
                                             <td><%#Eval("StatusText") %></td>
                                             <td>
                                                 <asp:HiddenField runat="server" ID="hfSysId" Value='<%#Eval("SysId") %>'  />
+                                                 <asp:HiddenField runat="server" ID="hfExecuteStartDate" Value='<%#Eval("ExecuteStartDate") %>'  />
                                             <asp:Button ID="btn_edit" runat="server" Text="編輯資料" CssClass="am-btn am-btn-success am-btn-xs"  OnClick="btn_edit_Click"/>
                                         </td>
                                         </tr>
