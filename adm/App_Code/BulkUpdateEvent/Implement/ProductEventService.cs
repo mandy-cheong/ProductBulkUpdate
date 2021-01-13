@@ -83,5 +83,23 @@ public class ProductEventService : IBulkUpdateDetailsService
         return list;
     }
 
-  
+    public bool UpdateProduct(Guid eventId)
+    {
+        var sql = @"  UPDATE WP
+                            SET 
+                             WP02 =  EventNameCN + ' ' + WP.WP02   ,
+                             WP23 =  EventNameEN + ' ' + WP.WP23 
+                            FROM WP
+                            INNER JOIN ProductEventUpdate PEU ON PEU.ProductId = WP.WP01
+                            INNER JOIN BulkUpdateEvent BUE ON BUE.SysId = PEU.EventId
+                            WHERE BUE.SysId = @EventId
+                            AND BUE.Status = 1
+                            AND PEU.Status = 1
+
+                            UPDATE BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId";
+        var cmd = new SqlCommand { CommandText = sql };
+        cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));
+
+        return SqlDbmanager.executeNonQry(cmd);
+    }
 }

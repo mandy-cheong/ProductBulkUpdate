@@ -1,14 +1,19 @@
 ﻿using hawooo;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
 public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 {
     private BulkUpdateService _productBulkUpdateService;
+    private readonly int _pageSize = 10;
     public adm_admProductBulkUpdate()
     {
         _productBulkUpdateService = new BulkUpdateService();
@@ -21,7 +26,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
             if (Request["page"] != null)
                  page= int.Parse(Request["page"].ToString());
 
-            BindData(page);
+            BindData(page, _pageSize);
             BindDropDown();
         }
     }
@@ -37,9 +42,21 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         ddlAddBulkUpdateType_SelectedIndexChanged(ddlAddBulkUpdateType, null);
     }
 
-    private void BindData(int page)
+    private void BindData(int page, int pageSize)
     {
-        
+        BulkUpdateSearch search = MapSearch(page, pageSize);
+        var dt = _productBulkUpdateService.ListBulkUpdate(search);
+        int acount = 0;
+        if (dt.Rows != null && dt.Rows.Count > 0)
+            acount = Convert.ToInt32(dt.Rows[0]["totalcount"].ToString());
+        rptList.DataSource = dt;
+        rptList.DataBind();
+        GetPaging(acount, 10, page);
+        list_panel.Update();
+    }
+
+    private BulkUpdateSearch MapSearch(int page, int pageSize)
+    {
         var search = new BulkUpdateSearch();
         if (!string.IsNullOrEmpty(txtSearchSDate.Text))
             search.ExecuteStartDate = DateTime.Parse(txtSearchSDate.Text);
@@ -50,18 +67,11 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
             search.ProductID = int.Parse(txtSearchID.Text);
 
         search.EventName = txtSearchName.Text;
-        search.PageSize = 10;
+        search.PageSize = pageSize;
         search.CurrentPage = page;
-        var dt= _productBulkUpdateService.ListBulkUpdate(search);
-
-        if (dt.Rows == null || dt.Rows.Count == 0)
-            return;
-        int acount = Convert.ToInt32(dt.Rows[0]["totalcount"].ToString());
-        rptList.DataSource = dt;
-        rptList.DataBind();
-        GetPaging(acount, 10, page);
-        list_panel.Update();
+        return search;
     }
+
     private void GetPaging(int total, int pagesize, int currentPage)
     {
         lit_page.Text = "";
@@ -94,7 +104,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 
         if (_productBulkUpdateService.AddBulkUpdate(productBulkUpdate) == 1)
         {
-            BindData(1);
+            BindData(1, 10);
             ScriptManager.RegisterStartupScript(Page, this.GetType(), "closemodal", "closeModal()", true);
         }
     }
@@ -218,8 +228,16 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 
         var eventId = Guid.Parse(hfSysId.Value);
         var eventData = _productBulkUpdateService.GetBulkUpdateData(eventId);
-        btnEdit.Enabled = executeDate>DateTime.Now;
+
+        var status = UpdateStatus.已執行;
+        var eventstatus = GetText(item, "hfStatus");
+        Enum.TryParse(eventstatus, out status);
+
         btn_sava.Visible = false;
+        btnEdit.Visible = true;
+        if ((status == UpdateStatus.已執行 || status == UpdateStatus.已排除) && executeDate > DateTime.Now)
+            btnEdit.Enabled = false;
+
         MapEditEvent(eventData);
         MapEditDetails(eventData);
     }
@@ -285,7 +303,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 
     protected void btnSearch_OnClick(object sender, EventArgs e)
     {
-        BindData(1);
+        BindData(1, _pageSize);
     }
     public bool isValidInt(string txt)
     {
@@ -382,7 +400,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         var productBulkUpdate = MapProductBulkUpdate();
         if (_productBulkUpdateService.UpdateBulkUpdate(productBulkUpdate))
         {
-            BindData(1);
+            BindData(1, _pageSize);
             ScriptManager.RegisterStartupScript(Page, this.GetType(), "closeModal", "closeModal()", true);
         }
     }
@@ -449,13 +467,90 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 
             lblEvenType.Text = type.ToString();
 
-           
+            var btnExecute = (Button)e.Item.FindControl("btn_execute");
+
+            var status = UpdateStatus.已執行;
+            var eventstatus = dr["Status"].ToString();
+            Enum.TryParse(eventstatus, out status);
+
+            if (status == UpdateStatus.已執行 || status == UpdateStatus.已排除)
+                btnExecute.Enabled = false;
+
+
         }
     }
 
     protected void btnExport_Click(object sender, EventArgs e)
     {
-        var dt = _productBulkUpdateService.GetExportData();
-        //PbClass.ExportDataTableToExcelUseNpoi(dt, "批次更新商品");
+        var search = MapSearch(1, 99999999);
+        var dt = _productBulkUpdateService.GetExportData(search);
+        ExportDataTableToExcelUseNpoi(dt, "批次更新商品");
+    }
+
+    public static void ExportDataTableToExcelUseNpoi(DataTable dt, string fileName)
+    {
+        //建立Excel 2003檔案
+        HSSFWorkbook wb = new HSSFWorkbook();
+        ISheet ws;
+        ////建立Excel 2007檔案
+        //IWorkbook wb = new XSSFWorkbook();
+        //ISheet ws;
+
+        if (dt.TableName != string.Empty)
+        {
+            ws = wb.CreateSheet(dt.TableName);
+        }
+        else
+        {
+            ws = wb.CreateSheet("Sheet1");
+        }
+
+        ws.CreateRow(0);//第一行為欄位名稱
+        for (int i = 0; i < dt.Columns.Count; i++)
+        {
+            ws.GetRow(0).CreateCell(i).SetCellValue(dt.Columns[i].ColumnName);
+        }
+
+        for (int i = 0; i < dt.Rows.Count; i++)
+        {
+            ws.CreateRow(i + 1);
+            for (int j = 0; j < dt.Columns.Count; j++)
+            {
+                ws.GetRow(i + 1).CreateCell(j).SetCellValue(dt.Rows[i][j].ToString());
+            }
+        }
+
+        MemoryStream ms = new MemoryStream();
+        wb.Write(ms);
+        HttpContext.Current.Response.AddHeader("Content-Disposition", string.Format("attachment; filename=" + fileName + ".xls"));
+        HttpContext.Current.Response.BinaryWrite(ms.ToArray());
+        wb = null;
+        ms.Close();
+        ms.Dispose();
+    }
+
+
+
+
+    protected void btn_execute_Click(object sender, EventArgs e)
+    {
+        var btn = (Button)sender;
+        var item = (RepeaterItem)btn.NamingContainer;
+        var id = GetText(item, "hfSysId");
+        var eventtype = int.Parse(GetText(item, "hfEventType"));
+
+        var factory= new BulkUpdateDetailsFactory();
+        var updateDetailsService = factory.CreateService(eventtype);
+        Guid eventid = new Guid();
+        var updateSuccess = false;
+
+        if (Guid.TryParse(id, out eventid))
+            updateSuccess = updateDetailsService.UpdateProduct(eventid);
+
+        var msg = updateSuccess ? "已執行" : "執行失敗";
+
+        BindData(1, _pageSize);
+        ScriptManager.RegisterStartupScript(Page, this.GetType(), "alertmsg", "  alert('"+ msg + "');", true);
+
     }
 }

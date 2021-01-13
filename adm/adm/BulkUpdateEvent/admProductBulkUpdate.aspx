@@ -145,7 +145,7 @@
                                         <div class="am-form-group">
                                             <label for="user-name" class="am-u-sm-3 am-form-label">預購數量</label>
                                             <div class="am-u-sm-9">
-                                                <asp:TextBox ID="txtAddPreOrderQuantity" runat="server" TextMode="Number"></asp:TextBox>
+                                                <asp:TextBox ID="txtAddPreOrderQuantity" runat="server" TextMode="Number" ></asp:TextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -289,8 +289,11 @@
                                             <td><%#Eval("StatusText") %></td>
                                             <td>
                                                 <asp:HiddenField runat="server" ID="hfSysId" Value='<%#Eval("SysId") %>'  />
+                                                 <asp:HiddenField runat="server" ID="hfStatus" Value='<%#Eval("Status") %>'  />
+                                                <asp:HiddenField runat="server" ID="hfEventType" Value='<%#Eval("EventType") %>'  />
                                                  <asp:HiddenField runat="server" ID="hfExecuteStartDate" Value='<%#Eval("ExecuteStartDate") %>'  />
                                             <asp:Button ID="btn_edit" runat="server" Text="編輯資料" CssClass="am-btn am-btn-success am-btn-xs"  OnClick="btn_edit_Click"/>
+                                                <asp:Button ID="btn_execute" runat="server" Text="立即執行" OnClientClick="if (!confirm('是否確認??')) return false;" CssClass="am-btn am-btn-success am-btn-xs"  OnClick="btn_execute_Click"/>
                                         </td>
                                         </tr>
                                     </ItemTemplate>

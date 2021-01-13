@@ -15,4 +15,6 @@ public interface IBulkUpdateDetailsService
     List<SqlCommand> EditBulkUpdate(List<UpdateDetails> updateDetails);
 
     List<UpdateDetails> GetBulkUpdate(Guid eventId);
+
+    bool UpdateProduct(Guid eventId);
 }

@@ -13,7 +13,7 @@ public interface IBulkUpdateService
     bool UpdateBulkUpdate(BulkUpdateData productBulkUpdate);
     DataTable ListBulkUpdate(BulkUpdateSearch updateSearch);
 
-    DataTable GetExportData();
+    DataTable GetExportData(BulkUpdateSearch bulkUpdate);
     BulkUpdateData GetBulkUpdateData(Guid id);
 
 }

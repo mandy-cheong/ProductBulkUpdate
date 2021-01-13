@@ -14,3 +14,4 @@ public enum BulkUpdateType
     商品下架 = 4,
     預購 = 5,
 }
+
