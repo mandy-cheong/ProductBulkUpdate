@@ -15,3 +15,9 @@ public enum BulkUpdateType
     預購 = 5,
 }
 
+public enum BulkUpdateStatus
+{
+    未執行 = 1,
+    已執行 = 2,
+    已排除 = 3,
+}

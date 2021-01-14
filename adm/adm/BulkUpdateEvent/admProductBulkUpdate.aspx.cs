@@ -229,13 +229,13 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         var eventId = Guid.Parse(hfSysId.Value);
         var eventData = _productBulkUpdateService.GetBulkUpdateData(eventId);
 
-        var status = UpdateStatus.已執行;
+        var status = BulkUpdateStatus.已執行;
         var eventstatus = GetText(item, "hfStatus");
         Enum.TryParse(eventstatus, out status);
 
         btn_sava.Visible = false;
         btnEdit.Visible = true;
-        if ((status == UpdateStatus.已執行 || status == UpdateStatus.已排除) && executeDate > DateTime.Now)
+        if ((status == BulkUpdateStatus.已執行 || status == BulkUpdateStatus.已排除) && executeDate > DateTime.Now)
             btnEdit.Enabled = false;
 
         MapEditEvent(eventData);
@@ -469,11 +469,11 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 
             var btnExecute = (Button)e.Item.FindControl("btn_execute");
 
-            var status = UpdateStatus.已執行;
+            var status = BulkUpdateStatus.已執行;
             var eventstatus = dr["Status"].ToString();
             Enum.TryParse(eventstatus, out status);
 
-            if (status == UpdateStatus.已執行 || status == UpdateStatus.已排除)
+            if (status == BulkUpdateStatus.已執行 || status == BulkUpdateStatus.已排除)
                 btnExecute.Enabled = false;
 
 

@@ -20,12 +20,7 @@ public class BulkUpdateEvent
     public DateTime? ExecuteEndDate { get; set; }
    public int EventType { get; set; }
 
-    public enum UpdateStatus
-    {
-        未執行 = 1,
-        已執行 = 2,
-        已排除 = 3,
-    }
+   
 
 
 }
