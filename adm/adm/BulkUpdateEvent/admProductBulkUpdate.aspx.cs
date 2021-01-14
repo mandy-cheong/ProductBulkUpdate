@@ -13,7 +13,7 @@ using System.Web.UI.WebControls;
 public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 {
     private BulkUpdateService _productBulkUpdateService;
-    private readonly int _pageSize = 10;
+    private readonly int _pageSize = 2;
     public adm_admProductBulkUpdate()
     {
         _productBulkUpdateService = new BulkUpdateService();
@@ -25,7 +25,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
             int page = 1;
             if (Request["page"] != null)
                  page= int.Parse(Request["page"].ToString());
-
+            BindSearchQeury();
             BindData(page, _pageSize);
             BindDropDown();
         }
@@ -51,7 +51,8 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
             acount = Convert.ToInt32(dt.Rows[0]["totalcount"].ToString());
         rptList.DataSource = dt;
         rptList.DataBind();
-        GetPaging(acount, 10, page);
+        var searchquery = GetSearchQuery(search);
+        GetPaging(acount, _pageSize, page, searchquery);
         list_panel.Update();
     }
 
@@ -71,8 +72,32 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         search.CurrentPage = page;
         return search;
     }
+    private string GetSearchQuery(BulkUpdateSearch updateSearch)
+    {
+        var searchqeury = "";
+        if (updateSearch.ExecuteStartDate.HasValue)
+            searchqeury +="&st="+ updateSearch.ExecuteStartDate.Value.ToString("yyyy-MM-dd");
+        if (updateSearch.ExecuteEndDate.HasValue)
+            searchqeury += "&et=" + updateSearch.ExecuteEndDate.Value.ToString("yyyy-MM-dd");
+        if (!string.IsNullOrEmpty(updateSearch.EventName))
+            searchqeury += "&en=" + updateSearch.EventName;
+        if (updateSearch.ProductID.HasValue)
+            searchqeury += "&pid=" + updateSearch.ProductID.Value;
 
-    private void GetPaging(int total, int pagesize, int currentPage)
+        return searchqeury;
+    }
+    private void BindSearchQeury()
+    {
+        if (Request["st"] != null)
+            txtSearchSDate.Text = Request["st"].ToString();
+        if (Request["et"] != null)
+            txtSearchEDate.Text = Request["et"].ToString();
+        if (Request["en"] != null)
+            txtSearchName.Text = Request["en"].ToString();
+        if (Request["pid"] != null)
+            txtSearchID.Text = Request["pid"].ToString();
+    }
+    private void GetPaging(int total, int pagesize, int currentPage, string searchquery)
     {
         lit_page.Text = "";
         var totalPages = (total + pagesize - 1) / pagesize;
@@ -90,7 +115,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         {
             var classs = startPage == currentPage ? "style='color: #fff;background-color: #29ABB3'" : "";
             var currenturl = Request.Url.AbsolutePath;
-            lit_page.Text += "<li > <a href='"+currenturl+"?page=" + startPage + "' " + classs + " >" + startPage+ "</a></li>";
+            lit_page.Text += "<li > <a href='"+currenturl+"?page=" + startPage + searchquery+ "'  " + classs + " >" + startPage+ "</a></li>";
             startPage++;
         }
     }
