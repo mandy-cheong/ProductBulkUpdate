@@ -17,6 +17,7 @@ public enum BulkUpdateType
 
 public enum BulkUpdateStatus
 {
+    已刪除 = -1,
     未執行 = 1,
     已執行 = 2,
     已排除 = 3,

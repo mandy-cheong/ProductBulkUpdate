@@ -13,7 +13,7 @@ using System.Web.UI.WebControls;
 public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 {
     private BulkUpdateService _productBulkUpdateService;
-    private readonly int _pageSize = 2;
+    private readonly int _pageSize = 10;
     public adm_admProductBulkUpdate()
     {
         _productBulkUpdateService = new BulkUpdateService();
@@ -308,7 +308,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         txtProductID.Text = !string.IsNullOrEmpty(productIds) ? productIds.TrimEnd(',') : ""; ;
         txtAddExecuteSDate.Text = data.UpdateEvent.ExecuteStartDate.ToString("yyyy-MM-dd");
         txtAddExecuteEDate.Text = data.UpdateEvent.ExecuteEndDate.HasValue ? data.UpdateEvent.ExecuteEndDate.Value.ToString("yyyy-MM-dd") : "";
-        ddlAddExecuteTime.SelectedValue = data.UpdateEvent.ExecuteStartDate.ToString("hhmm");
+        ddlAddExecuteTime.SelectedValue = data.UpdateEvent.ExecuteStartDate.ToString("HHmm");
         txtAddUpdateName.Text = data.UpdateEvent.EventName;
         ddlAddBulkUpdateType.SelectedValue = data.UpdateEvent.EventType.ToString();
         ddlAddBulkUpdateType_SelectedIndexChanged(ddlAddBulkUpdateType, null);
@@ -493,13 +493,14 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
             lblEvenType.Text = type.ToString();
 
             var btnExecute = (Button)e.Item.FindControl("btn_execute");
+            var btnDelete = (Button)e.Item.FindControl("btn_delete");
 
             var status = BulkUpdateStatus.已執行;
             var eventstatus = dr["Status"].ToString();
             Enum.TryParse(eventstatus, out status);
 
             if (status == BulkUpdateStatus.已執行 || status == BulkUpdateStatus.已排除)
-                btnExecute.Enabled = false;
+                btnDelete.Enabled= btnExecute.Enabled = false;
 
 
         }
@@ -577,5 +578,21 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         BindData(1, _pageSize);
         ScriptManager.RegisterStartupScript(Page, this.GetType(), "alertmsg", "  alert('"+ msg + "');", true);
 
+    }
+
+    protected void btn_delete_Click(object sender, EventArgs e)
+    {
+        var btn = (Button)sender;
+        var item = (RepeaterItem)btn.NamingContainer;
+        var id = GetText(item, "hfSysId");
+
+        Guid eventId;
+        var deleteSuccess = false;
+        if (Guid.TryParse(id, out eventId))
+            deleteSuccess = _productBulkUpdateService.DeleteBulkUpdate(eventId) == 1;
+
+        var msg = deleteSuccess ? "已刪除" : "刪除失敗";
+        BindData(1, _pageSize);
+        ScriptManager.RegisterStartupScript(Page, this.GetType(), "alertmsg", "  alert('" + msg + "');", true);
     }
 }

@@ -10,7 +10,6 @@ using System.Data.SqlClient;
 /// </summary>
 public class BulkUpdateService : IBulkUpdateService
 {
-    private readonly string conn = ConfigurationManager.ConnectionStrings["Conn"].ToString();
     private  IBulkUpdateDetailsService _bulkUpdateDetailsService;
     private readonly BulkUpdateDetailsFactory _updateDetailsFactory;
     public BulkUpdateService()
@@ -75,7 +74,7 @@ public class BulkUpdateService : IBulkUpdateService
                         LEFT JOIN ProductSortUpdate PSOU ON BUE.SYSID = PSOU.EventId AND PSOU.STATUS =1 
                         LEFT JOIN ProductPreOrderUpdate PPU ON BUE.SYSID = PPU.EventId AND PPU.STATUS =1 
                         LEFT JOIN ProductStatusUpdate PSU ON BUE.SYSID = PSU.EventId AND PSU.STATUS =1    LEFT JOIN PRODUCTEVENTUPDATE PEU ON BUE.SYSID = PEU.EventId AND PEU.STATUS =1 
-                       {0} ) ,
+                        WHERE BUE.STATUS>0 {0} ) ,
                              DETAILS AS(SELECT  distinct  BUE.*, 
                             CASE WHEN BUE.Status=1 THEN N'未執行' 
                             WHEN  BUE.Status=2 THEN  N'已執行'  
@@ -85,7 +84,8 @@ public class BulkUpdateService : IBulkUpdateService
                         LEFT JOIN ProductDateUpdate PDU ON BUE.SYSID = PDU.EventId AND PDU.STATUS =1 
                         LEFT JOIN ProductSortUpdate PSOU ON BUE.SYSID = PSOU.EventId AND PSOU.STATUS =1 
                         LEFT JOIN ProductPreOrderUpdate PPU ON BUE.SYSID = PPU.EventId AND PPU.STATUS =1 
-                        LEFT JOIN ProductStatusUpdate PSU ON BUE.SYSID = PSU.EventId AND PSU.STATUS =1  {0} )
+                        LEFT JOIN ProductStatusUpdate PSU ON BUE.SYSID = PSU.EventId AND PSU.STATUS =1 
+                        WHERE BUE.STATUS>0  {0} )
                         SELECT * FROM CTE, DETAILS
                         ORDER BY CDate DESC 
                         OFFSET " + skipRows + " ROWS FETCH NEXT " + updateSearch.PageSize + " ROWS ONLY  ";
@@ -98,17 +98,17 @@ public class BulkUpdateService : IBulkUpdateService
         var cmd = new SqlCommand();
         if (updateSearch.ExecuteStartDate.HasValue && updateSearch.ExecuteStartDate > DateTime.MinValue)
         {
-            cmd.CommandText += (string.IsNullOrEmpty(cmd.CommandText) ? " WHERE " : " AND  ") + " BUE.ExecuteStartDate>=@SDate";
+            cmd.CommandText +=  " AND BUE.ExecuteStartDate>=@SDate";
             cmd.Parameters.Add(SafeSQL.CreateInputParam("@SDate", SqlDbType.DateTime, updateSearch.ExecuteStartDate));
         }
         if (updateSearch.ExecuteEndDate.HasValue && updateSearch.ExecuteEndDate > DateTime.MinValue)
         {
-            cmd.CommandText += (string.IsNullOrEmpty(cmd.CommandText) ? " WHERE " : " AND  ") + "   BUE.ExecuteStartDate<=@EDate";
+            cmd.CommandText +=  " AND   BUE.ExecuteStartDate<=@EDate";
             cmd.Parameters.Add(SafeSQL.CreateInputParam("@EDate", SqlDbType.DateTime, updateSearch.ExecuteEndDate));
         }
         if (updateSearch.ProductID > 0)
         {
-            cmd.CommandText += (string.IsNullOrEmpty(cmd.CommandText) ? " WHERE " : " AND  ") + " ( PEU.ProductID=@ProductID OR  " +
+            cmd.CommandText +=  " AND  ( PEU.ProductID=@ProductID OR  " +
                 "PSU.ProductID=@ProductID  OR  " +
                 "PSOU.ProductID=@ProductID  OR " +
                 "PDU.ProductID=@ProductID  OR " +
@@ -117,7 +117,7 @@ public class BulkUpdateService : IBulkUpdateService
         }
         if (!string.IsNullOrEmpty(updateSearch.EventName ))
         {
-            cmd.CommandText += (string.IsNullOrEmpty(cmd.CommandText) ? " WHERE " : " AND  ") + "  BUE.EventName LIKE '%'+ @EventName+ '%' ";
+            cmd.CommandText +=  " AND  BUE.EventName LIKE '%'+ @EventName+ '%' ";
             cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventName", SqlDbType.NVarChar, updateSearch.EventName));
         }
         return cmd;
@@ -162,10 +162,26 @@ public class BulkUpdateService : IBulkUpdateService
                         LEFT JOIN ProductDateUpdate PDU ON BUE.SYSID = PDU.EventId AND PDU.STATUS =1 
                         LEFT JOIN ProductSortUpdate PSOU ON BUE.SYSID = PSOU.EventId AND PSOU.STATUS =1 
                         LEFT JOIN ProductPreOrderUpdate PPU ON BUE.SYSID = PPU.EventId AND PPU.STATUS =1 
-                        LEFT JOIN ProductStatusUpdate PSU ON BUE.SYSID = PSU.EventId AND PSU.STATUS =1 ";
+                        LEFT JOIN ProductStatusUpdate PSU ON BUE.SYSID = PSU.EventId AND PSU.STATUS =1 
+                        WHERE BUE.STATUS>0";
         var cmdsearch = GetWhereStatement(updateSearch);
         cmdsearch.CommandText = sql + cmdsearch.CommandText;
         var dt = SqlDbmanager.queryBySql(cmdsearch);
         return dt;
+    }
+
+
+    public int DeleteBulkUpdate(Guid eventId)
+    {
+        var exludeUpdateCol = new List<string> { "SysId", "ExecuteStartDate", "EventType"};
+        var cmdList = new List<SqlCommand>();
+        var bulkupdateEvent = new BulkUpdateEvent { SysId = eventId, Status=(int) BulkUpdateStatus.已刪除 };
+        cmdList.Add(SqlExtension.getUpdateSqlCmd("BulkUpdateEvent", bulkupdateEvent,exludeUpdateCol, new List<string> { "SysId=@SysId" }));
+        cmdList.Add(SqlExtension.getUpdateSqlCmd("ProductDateUpdate", bulkupdateEvent, exludeUpdateCol, new List<string> { "EventId=@SysId" }));
+        cmdList.Add(SqlExtension.getUpdateSqlCmd("ProductEventUpdate", bulkupdateEvent, exludeUpdateCol, new List<string> { "EventId=@SysId" }));
+        cmdList.Add(SqlExtension.getUpdateSqlCmd("ProductPreOrderUpdate", bulkupdateEvent, exludeUpdateCol, new List<string> { "EventId=@SysId" }));
+        cmdList.Add(SqlExtension.getUpdateSqlCmd("ProductSortUpdate", bulkupdateEvent, exludeUpdateCol, new List<string> { "EventId=@SysId" }));
+        cmdList.Add(SqlExtension.getUpdateSqlCmd("ProductStatusUpdate", bulkupdateEvent, exludeUpdateCol, new List<string> { "EventId=@SysId" }));
+        return SqlDbmanager.executeNonQryMutiSqlCmd(cmdList);
     }
 }

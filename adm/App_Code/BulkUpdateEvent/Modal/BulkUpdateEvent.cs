@@ -20,7 +20,9 @@ public class BulkUpdateEvent
     public DateTime? ExecuteEndDate { get; set; }
    public int EventType { get; set; }
 
-   
+    public int? Status { get; set; }
+
+
 
 
 }

@@ -75,7 +75,7 @@
                                         <label for="user-name" class="am-u-sm-3 am-form-label">執行時間:</label>
                                         <div class="am-u-sm-9">
                                             <asp:DropDownList runat="server" ID="ddlAddExecuteTime">
-                                                <asp:ListItem Text="6:00" Value="6000"></asp:ListItem>
+                                                <asp:ListItem Text="6:00" Value="0600"></asp:ListItem>
                                                 <asp:ListItem Text="11:30" Value="1130"></asp:ListItem>
                                                 <asp:ListItem Text="18:00" Value="1800"></asp:ListItem>
                                                 <asp:ListItem Text="23:30" Value="2330"></asp:ListItem>
@@ -282,19 +282,21 @@
                                         <tr>
                                             <td><%#Eval("SeqNo") %></td>
                                             <td><%#Eval("EventName") %></td>
-                                            <td><asp:Label runat="server" ID="lblEvenType"></asp:Label></td>
+                                            <td>
+                                                <asp:Label runat="server" ID="lblEvenType"></asp:Label></td>
 
                                             <td><%#Eval("ExecuteStartDate",  "{0:yyyy-MM-dd HH:mm}") %></td>
                                             <td><%#Eval("CDate","{0:yyyy-MM-dd HH:mm}") %></td>
                                             <td><%#Eval("StatusText") %></td>
                                             <td>
-                                                <asp:HiddenField runat="server" ID="hfSysId" Value='<%#Eval("SysId") %>'  />
-                                                 <asp:HiddenField runat="server" ID="hfStatus" Value='<%#Eval("Status") %>'  />
-                                                <asp:HiddenField runat="server" ID="hfEventType" Value='<%#Eval("EventType") %>'  />
-                                                 <asp:HiddenField runat="server" ID="hfExecuteStartDate" Value='<%#Eval("ExecuteStartDate") %>'  />
-                                            <asp:Button ID="btn_edit" runat="server" Text="編輯資料" CssClass="am-btn am-btn-success am-btn-xs"  OnClick="btn_edit_Click"/>
-                                                <asp:Button ID="btn_execute" runat="server" Text="立即執行" OnClientClick="if (!confirm('是否確認??')) return false;" CssClass="am-btn am-btn-success am-btn-xs"  OnClick="btn_execute_Click"/>
-                                        </td>
+                                                <asp:HiddenField runat="server" ID="hfSysId" Value='<%#Eval("SysId") %>' />
+                                                <asp:HiddenField runat="server" ID="hfStatus" Value='<%#Eval("Status") %>' />
+                                                <asp:HiddenField runat="server" ID="hfEventType" Value='<%#Eval("EventType") %>' />
+                                                <asp:HiddenField runat="server" ID="hfExecuteStartDate" Value='<%#Eval("ExecuteStartDate") %>' />
+                                                <asp:Button ID="btn_edit" runat="server" Text="編輯資料" CssClass="am-btn am-btn-success am-btn-xs" OnClick="btn_edit_Click" />
+                                                <asp:Button ID="btn_execute" runat="server" Text="立即執行" OnClientClick="if (!confirm('是否確認??')) return false;" CssClass="am-btn am-btn-success am-btn-xs" OnClick="btn_execute_Click" />
+                                                <asp:Button ID="btn_delete" runat="server" Text="刪除設定" OnClientClick="if (!confirm('是否確認??')) return false;" CssClass="am-btn am-btn-success am-btn-xs" OnClick="btn_delete_Click" />
+                                            </td>
                                         </tr>
                                     </ItemTemplate>
                                 </asp:Repeater>

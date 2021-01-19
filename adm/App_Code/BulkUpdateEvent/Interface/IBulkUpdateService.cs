@@ -8,11 +8,12 @@ using System.Web;
 /// Summary description for IProductBulkUpdate
 /// </summary>
 public interface IBulkUpdateService
+
 {
+    int DeleteBulkUpdate(Guid eventID);
     int AddBulkUpdate(BulkUpdateData  productBulkUpdate);
     bool UpdateBulkUpdate(BulkUpdateData productBulkUpdate);
     DataTable ListBulkUpdate(BulkUpdateSearch updateSearch);
-
     DataTable GetExportData(BulkUpdateSearch bulkUpdate);
     BulkUpdateData GetBulkUpdateData(Guid id);
 
