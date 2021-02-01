@@ -8,7 +8,6 @@ using System.Web;
 /// Summary description for IProductBulkUpdate
 /// </summary>
 public interface IBulkUpdateService
-
 {
     int DeleteBulkUpdate(Guid eventID);
     int AddBulkUpdate(BulkUpdateData  productBulkUpdate);

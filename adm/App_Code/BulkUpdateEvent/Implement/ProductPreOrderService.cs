@@ -23,7 +23,7 @@ public class ProductPreOrderService:IBulkUpdateDetailsService
 
         foreach (ProductPreOrderUpdate pEvent in updateDetails)
         {
-            cmdList.Add(SqlExtension.getInsertSqlCmd("ProductPreOrderUpdate", pEvent));
+            cmdList.Add(SqlExtension.getInsertSqlCmd("[ScheduleEvent].[dbo].ProductPreOrderUpdate", pEvent));
         }
         return cmdList;
     }
@@ -31,7 +31,7 @@ public class ProductPreOrderService:IBulkUpdateDetailsService
     public List<SqlCommand> EditBulkUpdate(List<UpdateDetails> updateDetails)
     {
         var cmdList = new List<SqlCommand>();
-        var sql = "Update ProductPreOrderUpdate set Status=0 where EventId = @EventId and status =1 ";
+        var sql = "Update [ScheduleEvent].[dbo].ProductPreOrderUpdate set Status=0 where EventId = @EventId and status =1 ";
         var resetCmd = new SqlCommand { CommandText = sql };
         resetCmd.Parameters.Add(SafeSQL.CreateInputParam(@"EventId", SqlDbType.UniqueIdentifier, updateDetails.FirstOrDefault().EventId));
         cmdList.Add(resetCmd);
@@ -58,14 +58,14 @@ public class ProductPreOrderService:IBulkUpdateDetailsService
 
     private static string GetUpdateSQL()
     {
-        return @"IF NOT EXISTS(SELECT TOP 1 ProductId FROM ProductPreOrderUpdate WHERE ProductId= @ProductId AND EventId= @EventId)
+        return @"IF NOT EXISTS(SELECT TOP 1 ProductId FROM [ScheduleEvent].[dbo].ProductPreOrderUpdate WHERE ProductId= @ProductId AND EventId= @EventId)
                       BEGIN
-                      INSERT INTO ProductPreOrderUpdate(SysId, EventId, ProductId, PreOrderQuantity,PreOrderStatus )
+                      INSERT INTO [ScheduleEvent].[dbo].ProductPreOrderUpdate(SysId, EventId, ProductId, PreOrderQuantity,PreOrderStatus )
                       VALUES (@SysId, @EventId, @ProductId,@PreOrderQuantity,@PreOrderStatus)
                     END
                     ELSE
                     BEGIN
-                      UPDATE ProductPreOrderUpdate SET 
+                      UPDATE [ScheduleEvent].[dbo].ProductPreOrderUpdate SET 
                         PreOrderQuantity=@PreOrderQuantity,
                         PreOrderStatus=@PreOrderStatus    ,Status=1,UDate=GETDATE()
                     WHERE ProductId= @ProductId AND EventId = @EventId 
@@ -74,7 +74,7 @@ public class ProductPreOrderService:IBulkUpdateDetailsService
 
     public List<UpdateDetails> GetBulkUpdate(Guid eventId)
     {
-        var sql = @"SELECT ProductId, PreorderQuantity, convert(int, PreOrderStatus) As PreOrderStatus FROM ProductPreOrderUpdate  WHERE EventId = @EventId AND Status=1 ";
+        var sql = @"SELECT ProductId, PreorderQuantity, convert(int, PreOrderStatus) As PreOrderStatus FROM [ScheduleEvent].[dbo].ProductPreOrderUpdate  WHERE EventId = @EventId AND Status=1 ";
         var cmd = new SqlCommand { CommandText = sql };
         cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));
         var dt = SqlDbmanager.queryBySql(cmd);
@@ -98,13 +98,13 @@ public class ProductPreOrderService:IBulkUpdateDetailsService
                              SET WP28 = PreOrderStatus,
                              WP29 =PreOrderQuantity
                             FROM WP
-                            INNER JOIN ProductPreOrderUpdate PPU ON PPU.ProductId = WP.WP01
-                            INNER JOIN BulkUpdateEvent BUE ON BUE.SysId = PPU.EventId
+                            INNER JOIN [ScheduleEvent].[dbo].ProductPreOrderUpdate PPU ON PPU.ProductId = WP.WP01
+                            INNER JOIN [ScheduleEvent].[dbo].BulkUpdateEvent BUE ON BUE.SysId = PPU.EventId
                             WHERE BUE.SysId = @EventId
                             AND BUE.Status = 1
                             AND PPU.Status = 1
 
-                            UPDATE BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId";
+                            UPDATE [ScheduleEvent].[dbo].BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId";
         var cmd = new SqlCommand { CommandText = sql };
         cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));
 

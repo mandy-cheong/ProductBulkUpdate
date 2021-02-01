@@ -262,7 +262,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         btnEdit.Visible = true;
         if ((status == BulkUpdateStatus.已執行 || status == BulkUpdateStatus.已排除) && executeDate > DateTime.Now)
             btnEdit.Enabled = false;
-
+        
         MapEditEvent(eventData);
         MapEditDetails(eventData);
     }
@@ -352,7 +352,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         DateTime eDate= DateTime.Now;
         if (divExecuteEDate.Visible&&!DateTime.TryParse(txtAddExecuteEDate.Text, out eDate))
             errorMsg += "執行日期格式錯誤 \\n";
-        if (divExecuteEDate.Visible && eDate<sDate)
+        if (divExecuteEDate.Visible && eDate<=sDate)
             errorMsg += "排除日期必須大於執行日期 \\n";
 
         int eventType = int.Parse(ddlAddBulkUpdateType.SelectedValue);
@@ -378,8 +378,11 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
     private string ValidatePreOrder()
     {
         string errorMsg = "";
-        if (!isValidInt(txtAddPreOrderQuantity.Text))
+        int preorderQuantity = 0;
+        if (!int.TryParse(txtAddPreOrderQuantity.Text, out  preorderQuantity))
             errorMsg += "預購數量請輸入數字 \\n";
+        else if (preorderQuantity>10)
+            errorMsg += "預購數量不能大於10";
         return errorMsg;
     }
 

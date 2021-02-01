@@ -24,7 +24,7 @@ public class ProductSortService:IBulkUpdateDetailsService
         foreach (var pEvent in updateDetails)
         {
             var addevent = (ProductSortUpdate)pEvent;
-            cmdList.Add(SqlExtension.getInsertSqlCmd("ProductSortUpdate", addevent));
+            cmdList.Add(SqlExtension.getInsertSqlCmd("[ScheduleEvent].[dbo].ProductSortUpdate", addevent));
         }
         return cmdList;
     }
@@ -33,7 +33,7 @@ public class ProductSortService:IBulkUpdateDetailsService
     {
         
         var cmdList = new List<SqlCommand>();
-        var sql =  "Update ProductSortUpdate set Status=0 where EventId = @EventId and status =1 ";
+        var sql = "Update [ScheduleEvent].[dbo].ProductSortUpdate set Status=0 where EventId = @EventId and status =1 ";
         var resetCmd = new SqlCommand { CommandText = sql };
         resetCmd.Parameters.Add(SafeSQL.CreateInputParam(@"EventId", SqlDbType.UniqueIdentifier, updateDetails.FirstOrDefault().EventId));
         cmdList.Add(resetCmd);
@@ -60,14 +60,14 @@ public class ProductSortService:IBulkUpdateDetailsService
 
     private static string GetUpdateSQL()
     {
-        return @"IF NOT EXISTS(SELECT TOP 1 ProductId FROM ProductSortUpdate WHERE ProductId= @ProductId AND EventId= @EventId)
+        return @"IF NOT EXISTS(SELECT TOP 1 ProductId FROM [ScheduleEvent].[dbo].ProductSortUpdate WHERE ProductId= @ProductId AND EventId= @EventId)
                       BEGIN
-                      INSERT INTO ProductSortUpdate(SysId, EventId, ProductId, productSort)
+                      INSERT INTO [ScheduleEvent].[dbo].ProductSortUpdate(SysId, EventId, ProductId, productSort)
                       VALUES (@SysId, @EventId, @ProductId, @productSort)
                     END
                     ELSE
                     BEGIN
-                      UPDATE ProductSortUpdate SET 
+                      UPDATE [ScheduleEvent].[dbo].ProductSortUpdate SET 
                         ProductSort=@ProductSort ,Status=1,UDate=GETDATE()
                     WHERE ProductId= @ProductId AND EventId = @EventId 
                     END";
@@ -76,7 +76,7 @@ public class ProductSortService:IBulkUpdateDetailsService
 
     public List<UpdateDetails> GetBulkUpdate(Guid eventId)
     {
-        var sql = @"SELECT* FROM ProductSortUpdate  WHERE EventId = @EventId AND Status=1";
+        var sql = @"SELECT* FROM [ScheduleEvent].[dbo].ProductSortUpdate  WHERE EventId = @EventId AND Status=1";
         var cmd = new SqlCommand { CommandText = sql };
         cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));
         var dt = SqlDbmanager.queryBySql(cmd);
@@ -97,13 +97,13 @@ public class ProductSortService:IBulkUpdateDetailsService
         var sql = @" UPDATE WP
                             SET WP39 =  ProductSort
                             FROM WP
-                            INNER JOIN ProductSortUpdate PSU ON PSU.ProductId = WP.WP01
-                            INNER JOIN BulkUpdateEvent BUE ON BUE.SysId = PSU.EventId
+                            INNER JOIN [ScheduleEvent].[dbo].ProductSortUpdate PSU ON PSU.ProductId = WP.WP01
+                            INNER JOIN [ScheduleEvent].[dbo].BulkUpdateEvent BUE ON BUE.SysId = PSU.EventId
                             WHERE BUE.SysId = @EventId
                             AND BUE.Status = 1
                             AND PSU.Status = 1
 
-                            UPDATE BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId";
+                            UPDATE [ScheduleEvent].[dbo].BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId";
         var cmd = new SqlCommand { CommandText = sql };
         cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));
 
