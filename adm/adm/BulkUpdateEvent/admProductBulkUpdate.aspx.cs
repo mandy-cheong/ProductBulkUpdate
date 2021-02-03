@@ -344,9 +344,11 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
             errorMsg += "請輸入Event 名稱 \\n";
 
         DateTime sDate;
-        if (!DateTime.TryParse(txtAddExecuteSDate.Text, out sDate))
+        var date = txtAddExecuteSDate.Text + " " + ddlAddExecuteTime.SelectedValue;
+        
+        if (!DateTime.TryParseExact(date, "yyyy-MM-dd HHmm", null, System.Globalization.DateTimeStyles.None, out sDate))
             errorMsg += "執行日期格式錯誤 \\n";
-        else if(sDate<DateTime.Now.Date)
+        else if(sDate<DateTime.Now)
             errorMsg += "執行日期必須大於今天 \\n";
       
         DateTime eDate= DateTime.Now;

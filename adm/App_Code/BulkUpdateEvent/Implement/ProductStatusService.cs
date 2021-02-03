@@ -96,12 +96,18 @@ public class ProductStatusService:IBulkUpdateDetailsService
                             INNER JOIN [ScheduleEvent].[dbo].BulkUpdateEvent BUE ON BUE.SysId = PSU.EventId
                             WHERE BUE.SysId = @EventId
                             AND BUE.Status = 1
-                            AND PSU.Status = 1
+                            AND PSU.Status = 1 ";
 
-                            UPDATE [ScheduleEvent].[dbo].BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId";
         var cmd = new SqlCommand { CommandText = sql };
-        cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));
+        var cmdUpdateStatus = new SqlCommand { CommandText = "UPDATE [ScheduleEvent].[dbo].BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId" };
 
-        return SqlDbmanager.executeNonQry(cmd);
+        cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));
+        cmdUpdateStatus.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));
+
+        var cmdList = new List<SqlCommand>();
+        cmdList.Add(cmd);
+        cmdList.Add(cmdUpdateStatus);
+
+        return SqlDbmanager.executeNonQryMutiSqlCmd(cmdList) == 1;
     }
 }
