@@ -168,7 +168,7 @@ public class BulkUpdateService : IBulkUpdateService
         cmdsearch.CommandText = sql + cmdsearch.CommandText;
         var dt = SqlDbmanager.queryBySql(cmdsearch);
         return dt;
-    }
+    } 
 
 
     public int DeleteBulkUpdate(Guid eventId)

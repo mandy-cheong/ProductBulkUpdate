@@ -151,7 +151,7 @@
                                         </div>
                                     </div>
                                     <script>
-                                        function setDateFormat() {
+                                        function setDateFormat() { 
 
                                             var opt = { dateFormat: 'yy-mm-dd' };
                                             var opt2 = {

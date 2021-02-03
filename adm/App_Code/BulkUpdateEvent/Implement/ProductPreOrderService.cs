@@ -97,13 +97,13 @@ public class ProductPreOrderService:IBulkUpdateDetailsService
         var sql = @" UPDATE WP
                              SET WP28 = PreOrderStatus,
                              WP29 =PreOrderQuantity
-                            FROM WP
+                            FROM WP 
                             INNER JOIN [ScheduleEvent].[dbo].ProductPreOrderUpdate PPU ON PPU.ProductId = WP.WP01
                             INNER JOIN [ScheduleEvent].[dbo].BulkUpdateEvent BUE ON BUE.SysId = PPU.EventId
                             WHERE BUE.SysId = @EventId
                             AND BUE.Status = 1
                             AND PPU.Status = 1
-
+ 
                             UPDATE [ScheduleEvent].[dbo].BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId";
         var cmd = new SqlCommand { CommandText = sql };
         cmd.Parameters.Add(SafeSQL.CreateInputParam("@EventId", SqlDbType.UniqueIdentifier, eventId));

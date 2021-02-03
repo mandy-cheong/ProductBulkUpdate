@@ -90,7 +90,7 @@ public class ProductDateService  : IBulkUpdateDetailsService
 
     public bool UpdateProduct(Guid eventId)
     {
-        var sql = @" UPDATE WP
+        var sql = @" UPDATE WP 
                            SET WP09 = PDU.StartDate ,
                              WP10 = PDU.EndDate 
                             FROM WP

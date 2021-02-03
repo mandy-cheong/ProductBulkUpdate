@@ -94,7 +94,7 @@ public class ProductEventService : IBulkUpdateDetailsService
                             INNER JOIN [ScheduleEvent].[dbo].BulkUpdateEvent BUE ON BUE.SysId = PEU.EventId
                             WHERE BUE.SysId = @EventId
                             AND BUE.Status = 1
-                            AND PEU.Status = 1
+                            AND PEU.Status = 1 
 
                             UPDATE [ScheduleEvent].[dbo].BulkUpdateEvent   SET Status = 2  WHERE SysId = @EventId";
         var cmd = new SqlCommand { CommandText = sql };
@@ -102,4 +102,4 @@ public class ProductEventService : IBulkUpdateDetailsService
 
         return SqlDbmanager.executeNonQry(cmd);
     }
-}
+} 

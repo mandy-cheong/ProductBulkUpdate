@@ -89,7 +89,7 @@ public class ProductStatusService:IBulkUpdateDetailsService
 
     public bool UpdateProduct(Guid eventId)
     {
-        var sql = @" UPDATE WP
+        var sql = @" UPDATE WP 
                             SET WP07 =  ProductStatus
                             FROM WP
                             INNER JOIN [ScheduleEvent].[dbo].ProductStatusUpdate PSU ON PSU.ProductId = WP.WP01

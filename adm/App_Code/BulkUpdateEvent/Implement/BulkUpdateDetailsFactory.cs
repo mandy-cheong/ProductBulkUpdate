@@ -8,7 +8,7 @@ public class BulkUpdateDetailsFactory
         //
         // TODO: Add constructor logic here
         //
-    }
+    } 
 
     public  IBulkUpdateDetailsService CreateService(int type)
     {
