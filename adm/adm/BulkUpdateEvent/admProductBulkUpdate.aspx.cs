@@ -155,7 +155,7 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
     }
     private List<UpdateDetails> MapProductUpdateDetails(BulkUpdateEvent bulkUpdate)
     {
-        var productIds = txtProductID.Text.Split(',');
+        var productIds = txtProductID.Text.TrimEnd(',').Split(',');
         var eventList = new List<UpdateDetails>();
         foreach (var pid in productIds)
         {
