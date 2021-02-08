@@ -184,4 +184,29 @@ public class BulkUpdateService : IBulkUpdateService
         cmdList.Add(SqlExtension.getUpdateSqlCmd("[ScheduleEvent].[dbo].ProductStatusUpdate", bulkupdateEvent, exludeUpdateCol, new List<string> { "EventId=@SysId" }));
         return SqlDbmanager.executeNonQryMutiSqlCmd(cmdList);
     }
+
+
+    public List<int> GetProducts(List<int> products)
+    {
+        var sql = @"SELECT  WP01 FROM WP WHERE WP01 IN (";
+        foreach (var id in products)
+        {
+            sql += id + ",";
+        }
+
+        sql = sql.TrimEnd(',') + ") ";
+
+        var dt = SqlDbmanager.queryBySql(sql);
+        if (dt == null || dt.Rows == null)
+            return new List<int>();
+
+        var existingproductIds = new List<int>();
+        foreach (DataRow dr in dt.Rows)
+        {
+            existingproductIds.Add(int.Parse(dr["WP01"].ToString()));
+        }
+
+        return existingproductIds;
+    }
+
 }

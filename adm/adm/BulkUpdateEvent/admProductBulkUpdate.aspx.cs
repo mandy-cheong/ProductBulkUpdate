@@ -357,6 +357,11 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
         if (divExecuteEDate.Visible && eDate<=sDate)
             errorMsg += "排除日期必須大於執行日期 \\n";
 
+        if (string.IsNullOrEmpty(txtProductID.Text))
+            errorMsg += "請輸入商品ID \\n";
+        else
+            errorMsg += ValidateProductId();
+
         int eventType = int.Parse(ddlAddBulkUpdateType.SelectedValue);
         switch (eventType)
         {
@@ -376,7 +381,35 @@ public partial class adm_admProductBulkUpdate : System.Web.UI.Page
 
         return errorMsg;
     }
-     
+    private string ValidateProductId()
+    {
+        var errorMsg = "";
+        var ids = txtProductID.Text.TrimEnd(',').Split(',');
+        List<int> productsIds = new List<int>();
+        foreach (var id in ids)
+        {
+            int productId = 0;
+            if (!int.TryParse(id, out productId))
+            {
+                errorMsg += "輸入的商品ID " + id + "必須是數字 \\n";
+                return errorMsg;
+            }
+            if (productId > 0)
+                productsIds.Add(productId);
+        }
+
+        if (productsIds.Count > 0)
+        {
+            var existingProductsId = _productBulkUpdateService.GetProducts(productsIds);
+            var notExistProducts = productsIds.Except(existingProductsId).ToList();
+            foreach (var notExistId in notExistProducts)
+            {
+                errorMsg += "商品ID " + notExistId + " 不存在 \\n";
+            }
+        }
+        return errorMsg;
+
+    }
     private string ValidatePreOrder()
     {
         string errorMsg = "";
